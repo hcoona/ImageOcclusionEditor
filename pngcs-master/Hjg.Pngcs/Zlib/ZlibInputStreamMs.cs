@@ -6,7 +6,7 @@ using System.IO.Compression;
 // ONLY FOR .NET 4.5
 namespace Hjg.Pngcs.Zlib {
 
-#if NET45
+#if NET45_OR_GREATER
 
     /// <summary>
     /// Zip input (deflater) based on Ms DeflateStream (.net 4.5)

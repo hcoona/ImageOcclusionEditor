@@ -4,7 +4,7 @@
 		<OutputType>WinExe</OutputType>
 		<UseWindowsForms>true</UseWindowsForms>
 		<ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-		<Configurations>Debug;Debug45;Release;Release45</Configurations>
+		<Configurations>Debug;Release</Configurations>
 
 		<!-- Assembly Information migrated from AssemblyInfo.cs -->
 		<AssemblyTitle>ImageOcclusionEditor</AssemblyTitle>

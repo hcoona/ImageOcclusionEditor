@@ -4,7 +4,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Ar.Com.Hjg.Pngcs</RootNamespace>
     <AssemblyName>Pngcs</AssemblyName>
-    <Configurations>Debug;Debug45;Release;Release45</Configurations>
+    <Configurations>Debug;Release</Configurations>
     
     <!-- Assembly information migrated from AssemblyInfo.cs -->
     <AssemblyTitle>Hjg.Pngcs</AssemblyTitle>
@@ -24,29 +24,13 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>TRACE;DEBUG;SHARPZIPLIB</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <DocumentationFile>Pngcs.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DefineConstants>TRACE;SHARPZIPLIB</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <DocumentationFile>Pngcs.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug45|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug45\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
-    <DocumentationFile>Pngcs.xml</DocumentationFile>
-    <NoWarn>1591</NoWarn>
-    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release45|AnyCPU'">
-    <OutputPath>bin\Release45\</OutputPath>
-    <DefineConstants>TRACE;NET45</DefineConstants>
-    <DocumentationFile>Pngcs.xml</DocumentationFile>
-    <Optimize>true</Optimize>
-    <NoWarn>1591</NoWarn>
-    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 </Project>
