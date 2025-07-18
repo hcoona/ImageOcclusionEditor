@@ -1,4 +1,4 @@
-﻿using FileSignatures;
+using FileSignatures;
 using FileSignatures.Formats;
 using Hjg.Pngcs.Chunks;
 using System;
