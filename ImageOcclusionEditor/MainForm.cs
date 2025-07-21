@@ -24,6 +24,7 @@ namespace ImageOcclusionEditor
 
         public MainForm(string backgroundFilePath, string occlusionFilePath)
         {
+            AutoScaleMode = AutoScaleMode.Dpi;
             InitializeComponent();
 
             OcclusionFilePath = occlusionFilePath;

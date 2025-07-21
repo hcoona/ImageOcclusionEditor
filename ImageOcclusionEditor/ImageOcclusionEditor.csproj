@@ -27,9 +27,9 @@
 		<GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
 
 		<EnableDpiAwareness>true</EnableDpiAwareness>
-	</PropertyGroup>
-	<PropertyGroup>
+		
 		<ApplicationIcon>imageocclusioneditor.ico</ApplicationIcon>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
 	</PropertyGroup>
 	<ItemGroup>
 		<Reference Include="System.Web" />
