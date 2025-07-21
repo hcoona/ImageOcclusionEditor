@@ -35,6 +35,7 @@
 		<Reference Include="System.Web" />
 		<Reference Include="System.Data.DataSetExtensions" />
 		<Reference Include="Microsoft.CSharp" />
+		<Reference Include="System.Web.Extensions" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="imageocclusioneditor.ico" />
@@ -47,6 +48,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="FileSignatures" Version="1.2.0" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3351.48" />
 		<PackageReference Include="Svg" Version="2.3.0" />
 		<PackageReference Include="System.Resources.Extensions" Version="4.6.0" />
 	</ItemGroup>

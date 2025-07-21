@@ -3,10 +3,13 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading.Tasks;
 using System.Web;
+using System.Web.Script.Serialization;
 using System.Windows.Forms;
 using Hjg.Pngcs;
 using Hjg.Pngcs.Chunks;
+using Microsoft.Web.WebView2.Core;
 using Svg;
 
 namespace ImageOcclusionEditor
@@ -21,6 +24,7 @@ namespace ImageOcclusionEditor
         public int OcclusionHeight { get; }
 
         private string BackgroundFilePath { get; set; }
+        private bool isWebViewReady = false;
 
         public MainForm(string backgroundFilePath, string occlusionFilePath)
         {
@@ -39,10 +43,16 @@ namespace ImageOcclusionEditor
             OcclusionHeight = height;
         }
 
-        private void Wb_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        private async void WebView_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
-            if (String.IsNullOrWhiteSpace(OriginalSvg) == false)
-                SetSvgInBrowser(OriginalSvg);
+            if (e.IsSuccess)
+            {
+                isWebViewReady = true;
+                if (!String.IsNullOrWhiteSpace(OriginalSvg))
+                {
+                    await SetSvgInBrowserAsync(OriginalSvg);
+                }
+            }
         }
 
         protected override void OnLoad(EventArgs e)
@@ -97,26 +107,47 @@ namespace ImageOcclusionEditor
             base.OnClosing(e);
         }
 
+        private void RunTaskSafely(Task task, string operationName = "operation")
+        {
+            task.ContinueWith(t =>
+            {
+                if (t.IsFaulted && !IsDisposed)
+                {
+                    try
+                    {
+                        this.Invoke(new Action(() =>
+                        {
+                            MessageBox.Show($"{operationName} failed: {t.Exception?.GetBaseException().Message}",
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }));
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // Form disposed, ignore
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // Control handle destroyed, ignore
+                    }
+                }
+            }, TaskScheduler.Default);
+        }
+
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == (Keys.Escape))
             {
                 Close();
-
                 return true;
             }
-
             else if (keyData == (Keys.Control | Keys.Shift | Keys.S))
             {
-                SaveOcclusion();
-
+                RunTaskSafely(SaveOcclusionAsync(), "save");
                 return true;
             }
-
             else if (keyData == (Keys.Control | Keys.S))
             {
-                SaveOcclusionAndExit();
-
+                RunTaskSafely(SaveOcclusionAndExitAsync(), "save and exit");
                 return true;
             }
 
@@ -126,7 +157,6 @@ namespace ImageOcclusionEditor
         private Uri GetSvgEditorUri()
         {
             string appFolder = Application.StartupPath;
-
             return new Uri(String.Format("file:///{0}", Path.Combine(appFolder, SvgEditorPath)));
         }
 
@@ -154,22 +184,43 @@ namespace ImageOcclusionEditor
             }
         }
 
-        private void SetSvgInBrowser(string svg)
+        private async Task SetSvgInBrowserAsync(string svg)
         {
-            svg = svg.Replace("\r", "").Replace("\n", "");
+            if (!isWebViewReady) return;
 
-            wb.Document.InvokeScript("eval", new[] { String.Format("svgCanvas.setSvgString('{0}')", svg) });
+            svg = svg.Replace("\r", "").Replace("\n", "").Replace("'", "\\'");
+            string script = String.Format("svgCanvas.setSvgString('{0}')", svg);
+
+            try
+            {
+                await webView.ExecuteScriptAsync(script);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error setting SVG in browser: {ex.Message}");
+            }
         }
 
-        private string GetSvgFromBrowser()
+        private async Task<string> GetSvgFromBrowserAsync()
         {
-            return wb.Document.InvokeScript("eval", new[] { "svgCanvas.svgCanvasToString()" }).ToString();
+            if (!isWebViewReady) return string.Empty;
+
+            try
+            {
+                string result = await webView.ExecuteScriptAsync("svgCanvas.svgCanvasToString()");
+                var serializer = new JavaScriptSerializer();
+                return serializer.Deserialize<string>(result);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error getting SVG from browser: {ex.Message}");
+                return string.Empty;
+            }
         }
 
         private Bitmap ConvertSvgToImage(string svg, int width, int height)
         {
             var svgDoc = SvgDocument.FromSvg<SvgDocument>(svg);
-
             return svgDoc.Draw(width, height);
         }
 
@@ -234,10 +285,16 @@ namespace ImageOcclusionEditor
             return chunk?.GetSVG();
         }
 
-        private void SaveOcclusion()
+        private async Task SaveOcclusionAsync()
         {
             string tmpOcclusionFilePath = Path.GetTempFileName();
-            string svg = GetSvgFromBrowser();
+            string svg = await GetSvgFromBrowserAsync();
+
+            if (string.IsNullOrEmpty(svg))
+            {
+                MessageBox.Show("Failed to get SVG data from browser.");
+                return;
+            }
 
             using (Bitmap img = ConvertSvgToImage(svg, OcclusionWidth, OcclusionHeight))
             {
@@ -252,9 +309,9 @@ namespace ImageOcclusionEditor
             File.Move(tmpOcclusionFilePath, OcclusionFilePath);
         }
 
-        private void SaveOcclusionAndExit()
+        private async Task SaveOcclusionAndExitAsync()
         {
-            SaveOcclusion();
+            await SaveOcclusionAsync();
             Close();
         }
 
@@ -263,24 +320,43 @@ namespace ImageOcclusionEditor
             Close();
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
-            SaveOcclusion();
+            await SaveOcclusionAsync();
         }
 
-        private void btnSaveExit_Click(object sender, EventArgs e)
+        private async void btnSaveExit_Click(object sender, EventArgs e)
         {
-            SaveOcclusionAndExit();
+            await SaveOcclusionAndExitAsync();
         }
 
-        private void MainForm_Load(object sender, EventArgs e)
+        private async void MainForm_Load(object sender, EventArgs e)
         {
-            int width, height;
-            GetImageSize(BackgroundFilePath, out width, out height);
+            try
+            {
+                string userDataFolder = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "ImageOcclusionEditor\\WebView2UserData");
+                var env = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
+                await webView.EnsureCoreWebView2Async(env);
 
-            wb.DocumentCompleted += Wb_DocumentCompleted;
-            var path = String.Format("{0}?{1}", GetSvgEditorUri(), GenerateUrlParams(BackgroundFilePath, width, height));
-            wb.Navigate(path);
+                webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
+                webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
+                webView.CoreWebView2.Settings.AreDevToolsEnabled = false;
+                webView.CoreWebView2.Settings.IsGeneralAutofillEnabled = false;
+
+                webView.NavigationCompleted += WebView_NavigationCompleted;
+
+                int width, height;
+                GetImageSize(BackgroundFilePath, out width, out height);
+
+                var path = String.Format("{0}?{1}", GetSvgEditorUri(), GenerateUrlParams(BackgroundFilePath, width, height));
+                webView.CoreWebView2.Navigate(path.ToString());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error initializing WebView2: {ex.Message}");
+            }
         }
     }
 }

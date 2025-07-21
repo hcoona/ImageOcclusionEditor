@@ -29,27 +29,27 @@ namespace ImageOcclusionEditor
     private void InitializeComponent()
     {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.wb = new System.Windows.Forms.WebBrowser();
+            this.webView = new Microsoft.Web.WebView2.WinForms.WebView2();
             this.btnSaveExit = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.webView)).BeginInit();
             this.SuspendLayout();
             // 
-            // wb
+            // webView
             // 
-            this.wb.AllowNavigation = false;
-            this.wb.AllowWebBrowserDrop = false;
-            this.wb.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.webView.AllowExternalDrop = false;
+            this.webView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.wb.Location = new System.Drawing.Point(2, 2);
-            this.wb.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
-            this.wb.MinimumSize = new System.Drawing.Size(40, 37);
-            this.wb.Name = "wb";
-            this.wb.ScriptErrorsSuppressed = true;
-            this.wb.ScrollBarsEnabled = false;
-            this.wb.Size = new System.Drawing.Size(2124, 1174);
-            this.wb.TabIndex = 0;
+            this.webView.CreationProperties = null;
+            this.webView.DefaultBackgroundColor = System.Drawing.Color.White;
+            this.webView.Location = new System.Drawing.Point(2, 2);
+            this.webView.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.webView.Name = "webView";
+            this.webView.Size = new System.Drawing.Size(2124, 1174);
+            this.webView.TabIndex = 0;
+            this.webView.ZoomFactor = 1D;
             // 
             // btnSaveExit
             // 
@@ -96,20 +96,21 @@ namespace ImageOcclusionEditor
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.btnSaveExit);
-            this.Controls.Add(this.wb);
+            this.Controls.Add(this.webView);
             this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.Name = "MainForm";
             this.Text = "SuperMemo Image Occlusion Editor";
             this.Load += new System.EventHandler(this.MainForm_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.webView)).EndInit();
             this.ResumeLayout(false);
 
     }
 
     #endregion
 
-    private System.Windows.Forms.WebBrowser wb;
+    private Microsoft.Web.WebView2.WinForms.WebView2 webView;
     private System.Windows.Forms.Button btnSaveExit;
     private System.Windows.Forms.Button btnSave;
     private System.Windows.Forms.Button btnCancel;
