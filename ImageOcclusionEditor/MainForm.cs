@@ -4,8 +4,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Threading.Tasks;
+using System.Text.Json;
 using System.Web;
-using System.Web.Script.Serialization;
 using System.Windows.Forms;
 using Hjg.Pngcs;
 using Hjg.Pngcs.Chunks;
@@ -208,8 +208,7 @@ namespace ImageOcclusionEditor
             try
             {
                 string result = await webView.ExecuteScriptAsync("svgCanvas.svgCanvasToString()");
-                var serializer = new JavaScriptSerializer();
-                return serializer.Deserialize<string>(result);
+                return JsonSerializer.Deserialize<string>(result);
             }
             catch (Exception ex)
             {

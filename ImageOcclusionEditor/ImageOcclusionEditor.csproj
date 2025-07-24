@@ -29,7 +29,6 @@
 		<Reference Include="System.Web" />
 		<Reference Include="System.Data.DataSetExtensions" />
 		<Reference Include="Microsoft.CSharp" />
-		<Reference Include="System.Web.Extensions" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="imageocclusioneditor.ico" />
@@ -42,5 +41,6 @@
 		<PackageReference Include="Hjg.Pngcs" Version="1.1.4" />
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3351.48" />
 		<PackageReference Include="Svg" Version="3.4.7" />
+		<PackageReference Include="System.Text.Json" Version="9.0.7" />
 	</ItemGroup>
 </Project>
