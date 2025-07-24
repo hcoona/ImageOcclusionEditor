@@ -39,4 +39,11 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
+
+	<!-- Workaround: https://github.com/MicrosoftEdge/WebView2Feedback/issues/4924 -->
+	<Target Name="RemoveWebView2Reference" AfterTargets="ResolvePackageDependenciesForBuild">
+		<ItemGroup>
+			<Reference Remove="$(NugetRoot)\lib_manual\net5.0-windows10.0.17763.0\Microsoft.Web.WebView2.Wpf.dll" />
+		</ItemGroup>
+	</Target>
 </Project>
