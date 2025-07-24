@@ -50,8 +50,7 @@ namespace ImageOcclusionEditor
 
             PngChunk.FactoryRegister(PngChunkSVGI.ID, typeof(PngChunkSVGI));
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            ApplicationConfiguration.Initialize();
             Application.Run(new MainForm(backgroundImg, occlusionImg));
         }
 

@@ -1,11 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net48</TargetFramework>
+		<TargetFramework>net9.0-windows</TargetFramework>
 		<OutputType>WinExe</OutputType>
 		<UseWindowsForms>true</UseWindowsForms>
 		<ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
 		<Configurations>Debug;Release</Configurations>
-
 		<!-- Assembly Information migrated from AssemblyInfo.cs -->
 		<AssemblyTitle>ImageOcclusionEditor</AssemblyTitle>
 		<AssemblyDescription></AssemblyDescription>
@@ -20,27 +19,24 @@
 		<AssemblyVersion>1.0.1.0</AssemblyVersion>
 		<FileVersion>1.0.1.0</FileVersion>
 
-		<EnableDpiAwareness>true</EnableDpiAwareness>
-		
+		<ApplicationVisualStyles>true</ApplicationVisualStyles>
+		<ApplicationUseCompatibleTextRendering>false</ApplicationUseCompatibleTextRendering>
+		<ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+		<ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
 		<ApplicationIcon>imageocclusioneditor.ico</ApplicationIcon>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 	</PropertyGroup>
-	<ItemGroup>
-		<Reference Include="System.Web" />
-		<Reference Include="System.Data.DataSetExtensions" />
-		<Reference Include="Microsoft.CSharp" />
-	</ItemGroup>
-	<ItemGroup>
-		<Content Include="imageocclusioneditor.ico" />
-		<None Include="svg-edit\**">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="FileSignatures" Version="5.2.0" />
 		<PackageReference Include="Hjg.Pngcs" Version="1.1.4" />
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3351.48" />
 		<PackageReference Include="Svg" Version="3.4.7" />
 		<PackageReference Include="System.Text.Json" Version="9.0.7" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="imageocclusioneditor.ico" />
+		<None Include="svg-edit\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 </Project>

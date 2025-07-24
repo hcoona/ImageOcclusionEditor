@@ -3,9 +3,9 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Threading.Tasks;
+using System.Text;
 using System.Text.Json;
-using System.Web;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Hjg.Pngcs;
 using Hjg.Pngcs.Chunks;
@@ -162,17 +162,26 @@ namespace ImageOcclusionEditor
 
         private string GenerateUrlParams(string backgroundFilePath, int width, int height)
         {
-            var urlParams = HttpUtility.ParseQueryString(string.Empty);
+            var urlParams = new StringBuilder();
+            
+            AppendUrlParam(urlParams, "bkgd_url", backgroundFilePath);
+            AppendUrlParam(urlParams, "dimensions", String.Format("{0},{1}", width, height));
+            AppendUrlParam(urlParams, "initFill[color]", Properties.Settings.Default.FillColor);
+            AppendUrlParam(urlParams, "initFill[opacity]", "1");
+            AppendUrlParam(urlParams, "initStroke[color]", Properties.Settings.Default.StrokeColor);
+            AppendUrlParam(urlParams, "initStroke[width]", Properties.Settings.Default.StrokeWidth);
+            AppendUrlParam(urlParams, "initStroke[opacity]", "1");
 
-            urlParams.Add("bkgd_url", backgroundFilePath);
-            urlParams.Add("dimensions", String.Format("{0},{1}", width, height));
-            urlParams.Add("initFill[color]", Properties.Settings.Default.FillColor);
-            urlParams.Add("initFill[opacity]", "1");
-            urlParams.Add("initStroke[color]", Properties.Settings.Default.StrokeColor);
-            urlParams.Add("initStroke[width]", Properties.Settings.Default.StrokeWidth);
-            urlParams.Add("initStroke[opacity]", "1");
+            return urlParams.ToString().TrimStart('&');
+        }
 
-            return urlParams.ToString();
+        private void AppendUrlParam(StringBuilder sb, string key, string value)
+        {
+            if (sb.Length > 0)
+                sb.Append('&');
+            sb.Append(Uri.EscapeDataString(key));
+            sb.Append('=');
+            sb.Append(Uri.EscapeDataString(value));
         }
 
         private void GetImageSize(string filePath, out int width, out int height)

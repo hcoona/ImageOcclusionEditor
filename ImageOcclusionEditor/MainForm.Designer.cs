@@ -59,7 +59,7 @@ namespace ImageOcclusionEditor
             this.btnSaveExit.Name = "btnSaveExit";
             this.btnSaveExit.Size = new System.Drawing.Size(240, 61);
             this.btnSaveExit.TabIndex = 1;
-            this.btnSaveExit.Text = "Save && E&xit  (Ctrl+S)";
+            this.btnSaveExit.Text = "Save && E&xit (Ctrl+S)";
             this.btnSaveExit.UseVisualStyleBackColor = true;
             this.btnSaveExit.Click += new System.EventHandler(this.btnSaveExit_Click);
             // 
@@ -71,7 +71,7 @@ namespace ImageOcclusionEditor
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(240, 61);
             this.btnSave.TabIndex = 2;
-            this.btnSave.Text = "&Save  (Ctrl+Shift+S)";
+            this.btnSave.Text = "&Save (Ctrl+Shift+S)";
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 

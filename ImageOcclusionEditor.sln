@@ -1,9 +1,9 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36310.24
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageOcclusionEditor", "ImageOcclusionEditor\ImageOcclusionEditor.csproj", "{6F73C146-B354-47D2-AEBD-6AF2EF20AA73}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageOcclusionEditor", "ImageOcclusionEditor\ImageOcclusionEditor.csproj", "{6F73C146-B354-47D2-AEBD-6AF2EF20AA73}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{C7FB7C7F-6152-4DFD-B703-398828D4C261}"
 EndProject
