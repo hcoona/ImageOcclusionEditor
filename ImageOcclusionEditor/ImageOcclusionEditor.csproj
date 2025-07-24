@@ -20,12 +20,6 @@
 		<AssemblyVersion>1.0.1.0</AssemblyVersion>
 		<FileVersion>1.0.1.0</FileVersion>
 
-		<!-- Disable auto-generation of AssemblyInfo.cs -->
-		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-
-		<!-- Handle resource compilation for .NET Framework -->
-		<GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
-
 		<EnableDpiAwareness>true</EnableDpiAwareness>
 		
 		<ApplicationIcon>imageocclusioneditor.ico</ApplicationIcon>
@@ -48,6 +42,5 @@
 		<PackageReference Include="Hjg.Pngcs" Version="1.1.4" />
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3351.48" />
 		<PackageReference Include="Svg" Version="3.4.7" />
-		<PackageReference Include="System.Resources.Extensions" Version="9.0.7" />
 	</ItemGroup>
 </Project>
