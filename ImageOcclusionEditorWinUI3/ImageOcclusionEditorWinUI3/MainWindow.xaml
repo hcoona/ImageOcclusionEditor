@@ -40,24 +40,24 @@
                            Spacing="12">
 
                     <!-- Cancel Button -->
-                    <Button x:Name="btnCancel"
-                            Content="Cancel (ESC)"
+                    <Button Content="Cancel (ESC)"
                             MinWidth="160"
                             MinHeight="36"
                             Padding="16,8"
-                            Style="{StaticResource DefaultButtonStyle}">
+                            Style="{StaticResource DefaultButtonStyle}"
+                            Click="BtnCancel_Click">
                         <Button.KeyboardAccelerators>
                             <KeyboardAccelerator Key="Escape" />
                         </Button.KeyboardAccelerators>
                     </Button>
 
                     <!-- Save Button -->
-                    <Button x:Name="btnSave"
-                            Content="Save (Ctrl+Shift+S)"
+                    <Button Content="Save (Ctrl+Shift+S)"
                             MinWidth="160"
                             MinHeight="36"
                             Padding="16,8"
-                            Style="{StaticResource AccentButtonStyle}">
+                            Style="{StaticResource AccentButtonStyle}"
+                            Click="BtnSave_Click">
                         <Button.KeyboardAccelerators>
                             <KeyboardAccelerator Key="S" 
                                                Modifiers="Control,Shift" />
@@ -65,12 +65,12 @@
                     </Button>
 
                     <!-- Save & Exit Button -->
-                    <Button x:Name="btnSaveExit"
-                            Content="Save &amp; Exit (Ctrl+S)"
+                    <Button Content="Save &amp; Exit (Ctrl+S)"
                             MinWidth="160"
                             MinHeight="36"
                             Padding="16,8"
-                            Style="{StaticResource AccentButtonStyle}">
+                            Style="{StaticResource AccentButtonStyle}"
+                            Click="BtnSaveExit_Click">
                         <Button.KeyboardAccelerators>
                             <KeyboardAccelerator Key="S" 
                                                Modifiers="Control" />

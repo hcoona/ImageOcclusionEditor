@@ -11,10 +11,18 @@
 		<Nullable>enable</Nullable>
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 		<PublishAot>true</PublishAot>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<InvariantGlobalization>true</InvariantGlobalization>
+		<EnableMsixTooling>true</EnableMsixTooling>
 	</PropertyGroup>
-	<ItemGroup>
-		<Manifest Include="$(ApplicationManifest)" />
-	</ItemGroup>
+
+	<PropertyGroup Label="Publish">
+		<PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
+		<PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
+		<PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
+		<PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="FileSignatures" Version="5.2.0" />
 		<PackageReference Include="Hjg.Pngcs" Version="1.1.4" />
@@ -24,11 +32,14 @@
 		<PackageReference Include="Svg" Version="3.4.7" />
 		<PackageReference Include="System.Text.Json" Version="9.0.7" />
 	</ItemGroup>
-	<!-- Publish Properties -->
-	<PropertyGroup>
-		<PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
-		<PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
-		<PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-		<PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
-	</PropertyGroup>
+
+	<ItemGroup>
+		<Manifest Include="$(ApplicationManifest)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="svg-edit\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 </Project>
