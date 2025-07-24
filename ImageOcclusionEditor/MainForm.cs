@@ -26,6 +26,9 @@ namespace ImageOcclusionEditor
         private string BackgroundFilePath { get; set; }
         private bool isWebViewReady = false;
 
+        // Prevent recursive updates
+        private bool isUpdatingButtonSizes = false;
+
         public MainForm(string backgroundFilePath, string occlusionFilePath)
         {
             AutoScaleMode = AutoScaleMode.Dpi;
@@ -41,6 +44,47 @@ namespace ImageOcclusionEditor
 
             OcclusionWidth = width;
             OcclusionHeight = height;
+        }
+
+        /// <summary>
+        /// Synchronizes all button sizes when any button size changes,
+        /// ensuring all three buttons maintain the same width and height
+        /// </summary>
+        private void Button_SizeChanged(object sender, EventArgs e)
+        {
+            if (isUpdatingButtonSizes) return;
+
+            isUpdatingButtonSizes = true;
+            try
+            {
+                Size maxSize = GetMaxButtonSize();
+
+                // Only use MinimumSize to ensure consistency, let FlowLayoutPanel handle layout naturally
+                btnCancel.MinimumSize = maxSize;
+                btnSave.MinimumSize = maxSize;
+                btnSaveExit.MinimumSize = maxSize;
+
+                buttonFlowPanel.PerformLayout();
+            }
+            finally
+            {
+                isUpdatingButtonSizes = false;
+            }
+        }
+
+        /// <summary>
+        /// Gets the maximum size among all buttons
+        /// </summary>
+        private Size GetMaxButtonSize()
+        {
+            int maxWidth = Math.Max(Math.Max(btnCancel.Width, btnSave.Width), btnSaveExit.Width);
+            int maxHeight = Math.Max(Math.Max(btnCancel.Height, btnSave.Height), btnSaveExit.Height);
+
+            // Ensure not smaller than minimum size
+            maxWidth = Math.Max(maxWidth, 240);
+            maxHeight = Math.Max(maxHeight, 61);
+
+            return new Size(maxWidth, maxHeight);
         }
 
         private async void WebView_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
@@ -163,7 +207,7 @@ namespace ImageOcclusionEditor
         private string GenerateUrlParams(string backgroundFilePath, int width, int height)
         {
             var urlParams = new StringBuilder();
-            
+
             AppendUrlParam(urlParams, "bkgd_url", backgroundFilePath);
             AppendUrlParam(urlParams, "dimensions", String.Format("{0},{1}", width, height));
             AppendUrlParam(urlParams, "initFill[color]", Properties.Settings.Default.FillColor);
