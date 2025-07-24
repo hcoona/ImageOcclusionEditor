@@ -390,7 +390,12 @@ namespace ImageOcclusionEditor
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "ImageOcclusionEditor\\WebView2UserData");
                 var env = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
-                await webView.EnsureCoreWebView2Async(env);
+
+                var controllerOptions = env.CreateCoreWebView2ControllerOptions();
+                // Allows WinForms keyboard shortcuts (ProcessCmdKey) to work when WebView2 has focus.
+                controllerOptions.AllowHostInputProcessing = true;
+
+                await webView.EnsureCoreWebView2Async(env, controllerOptions);
 
                 webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
                 webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
