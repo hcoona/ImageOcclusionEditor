@@ -71,7 +71,7 @@ namespace ImageOcclusionEditorWinUI3
             }
 
             // Register PNG chunk factory
-            PngChunk.FactoryRegister(PngChunkSVGI.ID, typeof(PngChunkSVGI));
+            PngChunk.FactoryRegister(PngChunkSVGI.ID, info => new PngChunkSVGI(info));
 
             _window = new MainWindow(backgroundImg, occlusionImg);
             _window.Activate();

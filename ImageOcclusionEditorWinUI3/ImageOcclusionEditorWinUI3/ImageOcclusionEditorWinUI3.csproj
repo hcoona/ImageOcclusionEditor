@@ -25,7 +25,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="FileSignatures" Version="5.2.0" />
-		<PackageReference Include="Hjg.Pngcs" Version="1.1.4" />
+		<PackageReference Include="IO.Github.Hcoona.Pngcs" Version="1.2.1" />
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3351.48" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250606001" />
