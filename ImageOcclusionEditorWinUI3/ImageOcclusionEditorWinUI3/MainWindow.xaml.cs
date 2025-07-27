@@ -293,9 +293,9 @@ namespace ImageOcclusionEditorWinUI3
 
         private void GetImageSize(string filePath, out int width, out int height)
         {
-            using var img = SKBitmap.Decode(filePath);
-            width = img.Width;
-            height = img.Height;
+            using var codec = SKCodec.Create(filePath);
+            width = codec.Info.Width;
+            height = codec.Info.Height;
         }
 
         private async Task SetSvgInBrowserAsync(string svg)
