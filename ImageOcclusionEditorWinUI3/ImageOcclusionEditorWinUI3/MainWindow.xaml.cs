@@ -1,5 +1,4 @@
 using System;
-using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -294,7 +293,7 @@ namespace ImageOcclusionEditorWinUI3
 
         private void GetImageSize(string filePath, out int width, out int height)
         {
-            using Image img = Image.FromFile(filePath);
+            using var img = SKBitmap.Decode(filePath);
             width = img.Width;
             height = img.Height;
         }
