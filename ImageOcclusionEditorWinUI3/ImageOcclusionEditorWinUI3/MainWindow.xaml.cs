@@ -1,6 +1,5 @@
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -9,7 +8,8 @@ using Hjg.Pngcs;
 using Hjg.Pngcs.Chunks;
 using Microsoft.UI.Xaml;
 using Microsoft.Web.WebView2.Core;
-using Svg;
+using SkiaSharp;
+using Svg.Skia;
 
 namespace ImageOcclusionEditorWinUI3
 {
@@ -332,12 +332,6 @@ namespace ImageOcclusionEditorWinUI3
             }
         }
 
-        private Bitmap ConvertSvgToImage(string svg, int width, int height)
-        {
-            var svgDoc = SvgDocument.FromSvg<SvgDocument>(svg);
-            return svgDoc.Draw(width, height);
-        }
-
         private void CreateChunk(PngWriter pngw, string svg)
         {
             PngChunkSVGI chunk = new PngChunkSVGI(pngw.ImgInfo);
@@ -408,10 +402,12 @@ namespace ImageOcclusionEditorWinUI3
                 return;
             }
 
-            using (Bitmap img = ConvertSvgToImage(svg, OcclusionWidth, OcclusionHeight))
-            {
-                img.Save(tmpOcclusionFilePath, ImageFormat.Png);
-            }
+            using var sksvg = SKSvg.CreateFromSvg(svg);
+            sksvg.Save(
+                path: tmpOcclusionFilePath,
+                background: SKColors.Transparent,
+                format: SKEncodedImageFormat.Png
+            );
 
             WriteSvgToChunk(tmpOcclusionFilePath, svg);
 

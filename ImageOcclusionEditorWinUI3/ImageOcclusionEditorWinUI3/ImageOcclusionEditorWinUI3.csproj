@@ -16,20 +16,15 @@
 		<EnableMsixTooling>true</EnableMsixTooling>
 	</PropertyGroup>
 
-	<PropertyGroup Label="Publish">
-		<PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
-		<PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
-		<PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-		<PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
-	</PropertyGroup>
-
 	<ItemGroup>
 		<PackageReference Include="FileSignatures" Version="5.2.0" />
 		<PackageReference Include="IO.Github.Hcoona.Pngcs" Version="1.2.1" />
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3351.48" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250606001" />
-		<PackageReference Include="Svg" Version="3.4.7" />
+		<PackageReference Include="Svg.Skia" Version="3.0.4" />
+		<PackageReference Include="System.Drawing.Common" Version="9.0.7" />
+		<PackageReference Include="System.Private.Uri" Version="4.3.2" />
 		<PackageReference Include="System.Text.Json" Version="9.0.7" />
 	</ItemGroup>
 
