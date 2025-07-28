@@ -4,24 +4,18 @@
         <Platform Name="x86" />
     </Configurations>
     <Folder Name="/Licenses/">
-        <File Path="Resources/Licenses/LICENSE" />
-        <File Path="Resources/Licenses/LICENSE-FileSignature.txt" />
+        <File Path="LICENSE" />
         <File Path="Resources/Licenses/LICENSE.svg-edit.txt" />
-        <File Path="Resources/Licenses/LICENSE.vvv-svg.txt" />
     </Folder>
     <Folder Name="/Resources/">
         <File Path="imageocclusioneditor.ico" />
     </Folder>
     <Project Path="ImageOcclusionEditor/ImageOcclusionEditor.csproj" />
-    <Project Path="ImageOcclusionEditorWinUI3/ImageOcclusionEditorWinUI3 (Package)/ImageOcclusionEditorWinUI3 (Package).wapproj" Type="c7167f0d-bc9f-4e6e-afe1-012c56b48db5">
-        <Deploy />
-    </Project>
-    <Project Path="ImageOcclusionEditorWinUI3/ImageOcclusionEditorWinUI3/ImageOcclusionEditorWinUI3.csproj">
+    <Project Path="ImageOcclusionEditorWinUI3/ImageOcclusionEditorWinUI3.csproj">
         <Platform Solution="*|x64" Project="x64" />
         <Platform Solution="*|x86" Project="x86" />
     </Project>
     <Project Path="Setup/Setup.vdproj" Type="Installer">
-        <Build Solution="*|x64" />
-        <Build Solution="*|x86" />
+        <Build />
     </Project>
 </Solution>

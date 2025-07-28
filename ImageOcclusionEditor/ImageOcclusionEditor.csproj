@@ -27,11 +27,11 @@
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="FileSignatures" Version="5.2.0" />
-		<PackageReference Include="Hjg.Pngcs" Version="1.1.4" />
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3351.48" />
-		<PackageReference Include="Svg" Version="3.4.7" />
-		<PackageReference Include="System.Text.Json" Version="9.0.7" />
+		<PackageReference Include="FileSignatures" />
+		<PackageReference Include="Hjg.Pngcs" />
+		<PackageReference Include="Microsoft.Web.WebView2" />
+		<PackageReference Include="Svg" />
+		<PackageReference Include="System.Text.Json" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="imageocclusioneditor.ico" />
