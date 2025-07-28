@@ -5,6 +5,8 @@
     </Configurations>
     <Folder Name="/Licenses/">
         <File Path="LICENSE" />
+        <File Path="LICENSE.GPL3.txt" />
+        <File Path="LICENSE.MIT.txt" />
         <File Path="Resources/Licenses/LICENSE.svg-edit.txt" />
     </Folder>
     <Folder Name="/Resources/">
