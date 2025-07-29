@@ -10,9 +10,9 @@
       },
       "FileSignatures": {
         "type": "Direct",
-        "requested": "[5.2.0, )",
-        "resolved": "5.2.0",
-        "contentHash": "TmykmhBlLyD/zNZdjB4SDnU4SIvp6rr6o98T0nwCUW6vdVDWfIj4reJj008uUEJ1hHkSIdYRVtyUPSyq5dtDng==",
+        "requested": "[5.3.0, )",
+        "resolved": "5.3.0",
+        "contentHash": "f1fUeIlNAXGMZFyu7trtCApfkIEzJpUC+05z1LefGt/d03iki6VUZTb+g/mSL+n1CKcTQpGVZNAovOevERmdcg==",
         "dependencies": {
           "OpenMcdf": "2.3.1",
           "System.Reflection.TypeExtensions": "4.3.0",
