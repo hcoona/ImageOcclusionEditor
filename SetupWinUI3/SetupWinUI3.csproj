@@ -1,0 +1,82 @@
+<Project Sdk="Microsoft.Build.NoTargets">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <Platforms>x64</Platforms>
+        <SkipCopyBuildProduct>true</SkipCopyBuildProduct>
+        <!-- Set default target to build installer -->
+        <DefaultTargets>BuildInstaller</DefaultTargets>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Tools.InnoSetup" />
+    </ItemGroup>
+
+    <!-- Define dependency without ProjectReference -->
+    <ItemGroup>
+        <MSBuildProject Include="..\ImageOcclusionEditorWinUI3\ImageOcclusionEditorWinUI3.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="Setup.iss" />
+    </ItemGroup>
+
+    <!-- Define properties for caching -->
+    <PropertyGroup>
+        <PublishOutputPath>$(MSBuildProjectDirectory)\..\ImageOcclusionEditorWinUI3\bin\x64\$(Configuration)\net9.0-windows10.0.22000.0\win-x64\publish</PublishOutputPath>
+        <InstallerOutputPath>$(OutputPath)</InstallerOutputPath>
+        <InstallerOutputFile>$(InstallerOutputPath)\ImageOcclusionEditorWinUI3_v2.0.0_Setup.exe</InstallerOutputFile>
+    </PropertyGroup>
+
+    <!-- Collect input files for publish target -->
+    <ItemGroup>
+        <PublishInputFiles Include="$(MSBuildProjectDirectory)\..\ImageOcclusionEditorWinUI3\**\*.cs" />
+        <PublishInputFiles Include="$(MSBuildProjectDirectory)\..\ImageOcclusionEditorWinUI3\**\*.xaml" />
+        <PublishInputFiles Include="$(MSBuildProjectDirectory)\..\ImageOcclusionEditorWinUI3\**\*.csproj" />
+        <PublishInputFiles Include="$(MSBuildProjectDirectory)\..\ImageOcclusionEditorWinUI3\**\*.json" />
+        <PublishInputFiles Include="$(MSBuildProjectDirectory)\..\Directory.Build.props" />
+        <PublishInputFiles Include="$(MSBuildProjectDirectory)\..\Directory.Packages.props" />
+    </ItemGroup>
+
+    <!-- Collect input files for installer target -->
+    <ItemGroup>
+        <InstallerInputFiles Include="$(PublishOutputPath)\**\*" />
+        <InstallerInputFiles Include="$(MSBuildProjectDirectory)\Setup.iss" />
+        <InstallerInputFiles Include="$(MSBuildProjectDirectory)\..\LICENSE.GPL3.txt" />
+        <InstallerInputFiles Include="$(MSBuildProjectDirectory)\..\README.md" />
+        <InstallerInputFiles Include="$(MSBuildProjectDirectory)\..\Resources\Template_*.txt" />
+        <InstallerInputFiles Include="$(MSBuildProjectDirectory)\..\imageocclusioneditor.ico" />
+    </ItemGroup>
+
+    <Target Name="PublishWinUI3App"
+            Inputs="@(PublishInputFiles)"
+            Outputs="$(PublishOutputPath)\ImageOcclusionEditor.exe">
+        <Message Text="Publishing WinUI3 app..." Importance="normal" />
+        <MSBuild Projects="@(MSBuildProject)" Targets="Publish"
+            Properties="Configuration=$(Configuration);Platform=x64;RuntimeIdentifier=win-x64" />
+    </Target>
+
+    <Target Name="BuildInstaller"
+            DependsOnTargets="PublishWinUI3App"
+            Inputs="@(InstallerInputFiles)"
+            Outputs="$(InstallerOutputFile)">
+        <Message Text="Building installer..." Importance="normal" />
+        <MakeDir Directories="$(InstallerOutputPath)" Condition="!Exists('$(InstallerOutputPath)')" />
+        <Exec Command="$(InnoSetupCompiler) Setup.iss /O&quot;$(InstallerOutputPath)&quot;" />
+    </Target>
+
+    <!-- Override the default Build target -->
+    <Target Name="Build" DependsOnTargets="BuildInstaller" />
+
+    <!-- Also hook into the standard build process -->
+    <Target Name="EnsureInstallerBuild" BeforeTargets="Build" DependsOnTargets="BuildInstaller" />
+
+    <!-- Integrate with standard Clean target -->
+    <Target Name="CleanSetup" AfterTargets="Clean">
+        <Message Text="Cleaning setup artifacts..." Importance="normal" />
+        <RemoveDir Directories="$(PublishOutputPath)" Condition="Exists('$(PublishOutputPath)')" />
+        <RemoveDir Directories="$(InstallerOutputPath)" Condition="Exists('$(InstallerOutputPath)')" />
+    </Target>
+
+</Project>

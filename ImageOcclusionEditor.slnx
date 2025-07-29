@@ -1,7 +1,6 @@
 <Solution>
     <Configurations>
         <Platform Name="x64" />
-        <Platform Name="x86" />
     </Configurations>
     <Folder Name="/Licenses/">
         <File Path="LICENSE" />
@@ -14,10 +13,12 @@
     </Folder>
     <Project Path="ImageOcclusionEditor/ImageOcclusionEditor.csproj" />
     <Project Path="ImageOcclusionEditorWinUI3/ImageOcclusionEditorWinUI3.csproj">
-        <Platform Solution="*|x64" Project="x64" />
-        <Platform Solution="*|x86" Project="x86" />
+        <Platform Project="x64" />
     </Project>
     <Project Path="Setup/Setup.vdproj" Type="Installer">
         <Build />
+    </Project>
+    <Project Path="SetupWinUI3/SetupWinUI3.csproj">
+        <Platform Project="x64" />
     </Project>
 </Solution>
