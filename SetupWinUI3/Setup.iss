@@ -1,5 +1,6 @@
 #define MyAppName "Image Occlusion Editor"
-#define MyAppVersion "2.0.0"
+#define MyAppExePath "..\ImageOcclusionEditorWinUI3\bin\x64\Release\net9.0-windows10.0.22000.0\win-x64\publish\ImageOcclusionEditor.exe"
+#define MyAppVersion GetVersionNumbersString(MyAppExePath)
 #define MyAppPublisher "Shuai Zhang"
 #define MyAppURL "https://github.com/hcoona/ImageOcclusionEditor"
 #define MyAppExeName "ImageOcclusionEditor.exe"
