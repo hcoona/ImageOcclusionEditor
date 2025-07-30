@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using Hjg.Pngcs;
 using Hjg.Pngcs.Chunks;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
 using SkiaSharp;
 using Svg.Skia;
@@ -61,18 +62,16 @@ namespace ImageOcclusionEditorWinUI3
 
             OcclusionWidth = width;
             OcclusionHeight = height;
-
-            // Load the WebView2
-            LoadWebView();
         }
 
-        private async void LoadWebView()
+        private async void Grid_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
                 string userDataFolder = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "ImageOcclusionEditor\\WebView2UserData");
+                    "ImageOcclusionEditor",
+                    "WebView2UserData");
 
                 CoreWebView2Environment env = await CoreWebView2Environment.CreateWithOptionsAsync(
                     browserExecutableFolder: null,
@@ -82,10 +81,9 @@ namespace ImageOcclusionEditorWinUI3
                         AdditionalBrowserArguments = "--disable-features=msSmartScreenProtection",
                     });
 
-                var controllerOptions = env.CreateCoreWebView2ControllerOptions();
-                controllerOptions.AllowHostInputProcessing = true;
+                webView.NavigationCompleted += WebView_NavigationCompleted;
+                webView.WebMessageReceived += WebView_WebMessageReceived;
 
-                // For WinUI3, we can use the simpler approach
                 await webView.EnsureCoreWebView2Async(env);
 
                 webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
@@ -93,12 +91,10 @@ namespace ImageOcclusionEditorWinUI3
                 webView.CoreWebView2.Settings.AreDevToolsEnabled = false;
                 webView.CoreWebView2.Settings.IsGeneralAutofillEnabled = false;
 
-                webView.CoreWebView2.NavigationCompleted += WebView_NavigationCompleted;
-                webView.CoreWebView2.WebMessageReceived += WebView_WebMessageReceived;
-
                 GetImageSize(BackgroundFilePath, out int width, out int height);
-                var path = $"{GetSvgEditorUri()}?{GenerateUrlParams(BackgroundFilePath, width, height)}";
-                webView.CoreWebView2.Navigate(path);
+                var targetUri = $"{GetSvgEditorUri()}?{GenerateUrlParams(BackgroundFilePath, width, height)}";
+
+                webView.CoreWebView2.Navigate(targetUri);
             }
             catch (Exception ex)
             {
@@ -145,15 +141,15 @@ namespace ImageOcclusionEditorWinUI3
                         document.removeEventListener('keydown', window.imageOcclusionKeyHandler, true);
                         document.removeEventListener('keyup', window.imageOcclusionKeyHandler, true);
                     }
-                    
+
                     // Track if our handler is active
                     window.imageOcclusionHandlerActive = true;
-                    
+
                     // Define the keyboard handler
                     window.imageOcclusionKeyHandler = function(e) {
                         // Only handle if our handler is active
                         if (!window.imageOcclusionHandlerActive) return;
-                        
+
                         // Check for our specific shortcuts
                         if (e.key === 'Escape') {
                             e.preventDefault();
@@ -183,29 +179,29 @@ namespace ImageOcclusionEditorWinUI3
                             return false;
                         }
                     };
-                    
+
                     // Add the event listeners with capture phase to catch events early
                     document.addEventListener('keydown', window.imageOcclusionKeyHandler, true);
                     // Also add to window to ensure we catch everything
                     window.addEventListener('keydown', window.imageOcclusionKeyHandler, true);
-                    
+
                     // Add a backup using keyup as well for better reliability
                     window.addEventListener('keyup', function(e) {
                         if (!window.imageOcclusionHandlerActive) return;
-                        
+
                         // Handle on keyup as backup for some cases
-                        if (e.key === 'Escape' || 
+                        if (e.key === 'Escape' ||
                             (e.ctrlKey && (e.key === 'S' || e.key === 's'))) {
                             e.preventDefault();
                             e.stopPropagation();
                         }
                     }, true);
-                    
+
                     console.log('Image Occlusion keyboard shortcuts injected successfully');
-                    
+
                     // Re-inject periodically to ensure persistence
                     setTimeout(function() {
-                        if (window.imageOcclusionHandlerActive && 
+                        if (window.imageOcclusionHandlerActive &&
                             window.chrome && window.chrome.webview) {
                             console.log('Keyboard shortcut handler still active');
                         }
@@ -448,7 +444,7 @@ namespace ImageOcclusionEditorWinUI3
             // In WinUI3, we can use ContentDialog for better user experience
             try
             {
-                var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog()
+                var dialog = new ContentDialog()
                 {
                     Title = "Error",
                     Content = message,
