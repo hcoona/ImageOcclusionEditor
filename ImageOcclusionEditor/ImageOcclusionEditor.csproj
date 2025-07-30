@@ -16,8 +16,6 @@
 		<AssemblyCulture></AssemblyCulture>
 		<ComVisible>false</ComVisible>
 		<Guid>6f73c146-b354-47d2-aebd-6af2ef20aa73</Guid>
-		<AssemblyVersion>1.0.1.0</AssemblyVersion>
-		<FileVersion>1.0.1.0</FileVersion>
 
 		<ApplicationVisualStyles>true</ApplicationVisualStyles>
 		<ApplicationUseCompatibleTextRendering>false</ApplicationUseCompatibleTextRendering>
