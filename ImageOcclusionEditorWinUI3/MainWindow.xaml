@@ -30,7 +30,7 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid>
+    <Grid Loaded="Grid_Loaded">
         <!-- Define two rows: main content area and bottom button panel -->
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -41,7 +41,6 @@
         <!-- Using explicit Source to test if WebView2 works -->
         <WebView2 x:Name="webView"
                   Grid.Row="0"
-                  Source="about:blank"
                   DefaultBackgroundColor="White" />
 
         <!-- Bottom Panel for Buttons -->
