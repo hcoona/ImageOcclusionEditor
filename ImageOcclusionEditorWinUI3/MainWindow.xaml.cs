@@ -39,7 +39,7 @@ namespace ImageOcclusionEditorWinUI3
     /// </summary>
     public sealed partial class MainWindow : Window
     {
-        private const string SvgEditorPath = "svg-edit/svg-editor.html";
+        private const string SvgEditorPath = "svg-edit/index.html";
 
         public string OriginalSvg { get; }
         public string OcclusionFilePath { get; }
@@ -78,7 +78,9 @@ namespace ImageOcclusionEditorWinUI3
                     userDataFolder: userDataFolder,
                     new CoreWebView2EnvironmentOptions
                     {
-                        AdditionalBrowserArguments = "--disable-features=msSmartScreenProtection",
+                        AdditionalBrowserArguments =
+                            "--disable-features=msSmartScreenProtection " +
+                            "--allow-file-access-from-files",
                     });
 
                 webView.NavigationCompleted += WebView_NavigationCompleted;
@@ -107,6 +109,9 @@ namespace ImageOcclusionEditorWinUI3
             if (e.IsSuccess)
             {
                 isWebViewReady = true;
+
+                await SetBackgroundInBrowser(BackgroundFilePath);
+
                 if (!string.IsNullOrWhiteSpace(OriginalSvg))
                 {
                     await SetSvgInBrowserAsync(OriginalSvg);
@@ -295,6 +300,7 @@ namespace ImageOcclusionEditorWinUI3
             AppendUrlParam(urlParams, "initStroke[color]", Settings.StrokeColor);
             AppendUrlParam(urlParams, "initStroke[width]", Settings.StrokeWidth);
             AppendUrlParam(urlParams, "initStroke[opacity]", "1");
+            AppendUrlParam(urlParams, "storagePrompt", "false");
 
             return urlParams.ToString().TrimStart('&');
         }
@@ -315,16 +321,35 @@ namespace ImageOcclusionEditorWinUI3
             height = codec.Info.Height;
         }
 
+        private async Task SetBackgroundInBrowser(string backgroundFilePath)
+        {
+            if (!isWebViewReady) return;
+
+            string script = $"svgEditor.setBackground(\"\", \"{new Uri(backgroundFilePath).AbsoluteUri}\")";
+            try
+            {
+                await webView.CoreWebView2.ExecuteScriptAsync(script);
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Error setting background in browser: {ex.Message}");
+            }
+        }
+
         private async Task SetSvgInBrowserAsync(string svg)
         {
             if (!isWebViewReady) return;
 
             svg = svg.Replace("\r", "").Replace("\n", "").Replace("'", "\\'");
-            string script = $"svgCanvas.setSvgString('{svg}')";
+            string script = $"svgEditor.loadSvgString('{svg}')";
 
             try
             {
-                await webView.CoreWebView2.ExecuteScriptAsync(script);
+                string result = await webView.CoreWebView2.ExecuteScriptAsync(script);
+                if (result == "false")
+                {
+                    ShowError($"Failed to set SVG in browser!");
+                }
             }
             catch (Exception ex)
             {
@@ -338,7 +363,7 @@ namespace ImageOcclusionEditorWinUI3
 
             try
             {
-                string result = await webView.CoreWebView2.ExecuteScriptAsync("svgCanvas.svgCanvasToString()");
+                string result = await webView.CoreWebView2.ExecuteScriptAsync("svgEditor.svgCanvas.svgCanvasToString()");
                 return JsonSerializer.Deserialize(result, JsonContext.Default.String) ?? string.Empty;
             }
             catch (Exception ex)
