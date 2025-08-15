@@ -14,7 +14,4 @@
     <Project Path="ImageOcclusionEditorWinUI3/ImageOcclusionEditorWinUI3.csproj">
         <Platform Project="x64" />
     </Project>
-    <Project Path="SetupWinUI3/SetupWinUI3.csproj">
-        <Platform Project="x64" />
-    </Project>
 </Solution>

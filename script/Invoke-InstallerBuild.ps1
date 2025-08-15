@@ -3,9 +3,10 @@
 Invokes publishing the WinUI3 app and builds the installer via Inno Setup.
 
 .DESCRIPTION
-This script replicates the installer build workflow defined in `SetupWinUI3/SetupWinUI3.csproj`:
+This script publishes the WinUI3 app and then runs the Inno Setup compiler (ISCC) using the `Setup.iss` located in the same directory as this script (`script/Setup.iss`).
+Steps:
 - Publish the WinUI3 app (self-contained, RID-specific)
-- Run Inno Setup compiler (ISCC) on `SetupWinUI3/Setup.iss`
+- Run Inno Setup compiler (ISCC) on `script/Setup.iss`
 
 It follows PowerShell best practices and treats non-zero exit codes from native commands as terminating errors using PSNative preferences.
 
@@ -19,7 +20,7 @@ CPU platform. Defaults to x64. Currently only x64 is supported by the project.
 Runtime Identifier (RID) for publish. Defaults to win-x64.
 
 .PARAMETER InstallerOutputPath
-Output folder for the built installer. Defaults to `SetupWinUI3/bin/<Platform>/<Configuration>`.
+Output folder for the built installer. Defaults to repository root `out` directory.
 
 .PARAMETER InnoSetupCompiler
 Path to Inno Setup compiler (ISCC.exe). If not provided, the script searches PATH and common install locations.
@@ -35,11 +36,11 @@ Only clean the output directories and exit without building.
 
 .EXAMPLE
 # From repository root or any location
-pwsh -File .\ImageOcclusionEditorWinUI3\Invoke-InstallerBuild.ps1 -Configuration Release
+pwsh -File .\script\Invoke-InstallerBuild.ps1 -Configuration Release
 
 .EXAMPLE
 # Only build installer using existing publish output
-pwsh -File .\ImageOcclusionEditorWinUI3\Invoke-InstallerBuild.ps1 -SkipPublish
+pwsh -File .\script\Invoke-InstallerBuild.ps1 -SkipPublish
 
 .NOTES
 - Requires .NET SDK and Inno Setup 6.
@@ -99,8 +100,10 @@ function Write-Status {
 # Resolve repo paths relative to this script
 $ScriptDir = $PSScriptRoot
 $RepoRoot  = Split-Path -Parent $ScriptDir
-$WinUIProj = Join-Path $ScriptDir 'ImageOcclusionEditorWinUI3.csproj'
-$SetupDir  = Join-Path $RepoRoot 'SetupWinUI3'
+# WinUI3 csproj sits in project folder at repo root
+$WinUIProj = Join-Path $RepoRoot 'ImageOcclusionEditorWinUI3/ImageOcclusionEditorWinUI3.csproj'
+# Use Setup.iss in the same directory as this script
+$SetupDir  = $ScriptDir
 $SetupIss  = Join-Path $SetupDir  'Setup.iss'
 
 if (-not (Test-Path -Path $WinUIProj -PathType Leaf)) {
@@ -122,9 +125,11 @@ $asmNode = Select-Xml -Xml $projXml -XPath '//Project/PropertyGroup/AssemblyName
 $AssemblyName = if ($asmNode) { $asmNode.Node.InnerText } else { 'ImageOcclusionEditor' }
 
 # Compute default paths if not supplied
-$PublishOutputPath = Join-Path $ScriptDir (Join-Path "bin/$Platform/$Configuration" (Join-Path $TargetFramework (Join-Path $RuntimeIdentifier 'publish')))
+# The publish output still goes under the WinUI3 project folder
+$PublishOutputPath = Join-Path (Split-Path -Parent $WinUIProj) (Join-Path "bin/$Platform/$Configuration" (Join-Path $TargetFramework (Join-Path $RuntimeIdentifier 'publish')))
 if (-not $InstallerOutputPath) {
-    $InstallerOutputPath = Join-Path $SetupDir (Join-Path 'bin' (Join-Path $Platform $Configuration))
+    # Default installer output to repo root 'out' directory
+    $InstallerOutputPath = Join-Path $RepoRoot 'out'
 }
 $InstallerOutputPath = (Resolve-Path -LiteralPath (New-Item -ItemType Directory -Force -Path $InstallerOutputPath)).Path
 

@@ -636,4 +636,5 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,visualstudio,visualstudiocode,csharp,vim
 
+/out
 /ImageOcclusionEditorWinUI3/svg-edit
