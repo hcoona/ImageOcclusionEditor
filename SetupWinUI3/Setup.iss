@@ -1,5 +1,10 @@
 #define MyAppName "Image Occlusion Editor"
-#define MyAppExePath "..\ImageOcclusionEditorWinUI3\bin\x64\Release\net9.0-windows10.0.22000.0\win-x64\publish\ImageOcclusionEditor.exe"
+; PublishDir can be injected from the build script or csproj via /DPublishDir="..."
+#ifndef PublishDir
+#define PublishDir "..\ImageOcclusionEditorWinUI3\bin\x64\Release\net9.0-windows10.0.22000.0\win-x64\publish"
+#endif
+; Use PublishDir directly; caller must pass a clean path without trailing backslash
+#define MyAppExePath PublishDir + "\ImageOcclusionEditor.exe"
 #define MyAppVersion GetVersionNumbersString(MyAppExePath)
 #define MyAppPublisher "Shuai Zhang"
 #define MyAppURL "https://github.com/hcoona/ImageOcclusionEditor"
@@ -40,7 +45,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 ; x64 version files only
-Source: "..\ImageOcclusionEditorWinUI3\bin\x64\Release\net9.0-windows10.0.22000.0\win-x64\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Icon file
 Source: "..\imageocclusioneditor.ico"; DestDir: "{app}"; Flags: ignoreversion
 ; Documentation

@@ -63,7 +63,7 @@
             Outputs="$(InstallerOutputFile)">
         <Message Text="Building installer..." Importance="normal" />
         <MakeDir Directories="$(InstallerOutputPath)" Condition="!Exists('$(InstallerOutputPath)')" />
-        <Exec Command="$(InnoSetupCompiler) Setup.iss /O&quot;$(InstallerOutputPath)&quot;" />
+        <Exec Command="$(InnoSetupCompiler) Setup.iss /O&quot;$(InstallerOutputPath)&quot; /DPublishDir=&quot;$(PublishOutputPath)&quot;" />
     </Target>
 
     <!-- Override the default Build target -->
