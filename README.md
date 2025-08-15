@@ -5,13 +5,15 @@
 ![](https://github.com/supermemo/ImageOcclusionEditor/raw/master/Resources/warning_24.png) This software works in tandem with **SuperMemo Assistant**, found [on this same GitHub profile](https://github.com/supermemo/SuperMemoAssistant)
 
 ### Table of Content
-- [Screenshots](#screenshots)
-- [Downloads](#downloads)
-- [Information](#information)
-- [Demonstration Video](#demonstration-video)
-- [Additional Templates](#additional-templates)
-- [Configuration (Optional)](#configuration-optional)
-- [Special thanks, Credits, Licenses](#special-thanks-credits-licenses)
+- [Image Occlusion Editor](#image-occlusion-editor)
+  - [Table of Content](#table-of-content)
+  - [Screenshots](#screenshots)
+  - [Downloads](#downloads)
+  - [Information](#information)
+  - [Demonstration video](#demonstration-video)
+  - [Additional Templates](#additional-templates)
+  - [Configuration (Optional)](#configuration-optional)
+  - [Special thanks, Credits, Licenses](#special-thanks-credits-licenses)
 
 ### Screenshots
 
@@ -71,13 +73,23 @@ In **ImageOcclusionEditor.exe.config**:
 
 ### Special thanks, Credits, Licenses
 
-*Image Occlusion Editor* is built on the work of people who pledged their time to the Open Source community.
+This repository currently distributes ImageOcclusionEditorWinUI3 under the GPL-3.0-or-later license. Some files contain code derived from the original ImageOcclusionEditor by the SuperMemo Community (MIT). Attribution is preserved in-file and below.
 
-I would like to emphasize on the importance of their contribution, and extend my gratitude especially to (but not limited to):
+Credits and acknowledgements (non-exhaustive):
+
+* SuperMemo Community — authors of ImageOcclusionEditor (MIT), from which parts of this project are derived.
+
+Additional acknowledgements (legacy and related work):
+
 * The people of the *SVG-Edit* group for their [SVG editor](https://github.com/SVG-Edit/svgedit) (central piece of ImageOcclusionEditor)
 * The people of the *vvvv* group for their [SVG library](https://github.com/vvvv/SVG)
 * *Neil Harvey* for his [FileSignature library](https://github.com/neilharvey/FileSignatures)
 * *Aristotelis P.* and predecessors for [the original idea](https://github.com/glutanimate/image-occlusion-enhanced), and years of using their Occlusion Addon in the past
 
-All required licenses [can be found](Resources/Licenses) in this project repository.
-If however you found that I omitted to include the terms of the license for one of your work, by all mean please let me know so that I may correct this.
+Licensing and notices:
+
+- Project license: see `LICENSE` and `LICENSE.GPL3.txt` (GPL-3.0-or-later).
+- Attribution for derived MIT code: see `LICENSE.MIT.txt` and in-file notices.
+- Aggregated third-party notices: see `THIRD-PARTY-NOTICES.TXT`.
+
+If you believe a required notice is missing or incomplete, please open an issue so we can correct it.

@@ -1,20 +1,12 @@
-ImageOcclusionEditor License Declaration
+ImageOcclusionEditor Licensing Overview
 
-This repository contains two main projects with different licenses:
+This project is licensed under the GPL-3.0+ License. See LICENSE.GPL3.txt.txt for full license text.
 
-1. ImageOcclusionEditor
-   License: MIT License
-   Authors: SuperMemo Community
-   The ImageOcclusionEditor project is licensed under the MIT License. See LICENSE.MIT.txt for full license text.
+Some files in ImageOcclusionEditorWinUI3 contain code derived from the original "ImageOcclusionEditor" project by the SuperMemo Community, which is licensed under the MIT License. Such files include in-file notices like:
 
-2. ImageOcclusionEditorWinUI3
-   License: GNU General Public License v3.0 or later (GPL-3.0+)
-   Authors: Shuai Zhang
-   The ImageOcclusionEditorWinUI3 project is licensed under the GPL-3.0+ License. See LICENSE.GPL3.txt.txt for full license text.
+    This file contains code derived from ImageOcclusionEditor by SuperMemo Community,
+    which is licensed under the MIT License.
 
-3. svg-edit
-   License: MIT License
-   Authors: SVG-edit authors
-   The svg-edit project is licensed under the MIT License. See Resources/Licenses/LICENSE.svg-edit.txt for full license text.
+In accordance with the MIT License, appropriate attribution is preserved. Redistribution of this repository is under the GPL-3.0-or-later terms for the combined work. For the MIT License text of the original ImageOcclusionEditor, see LICENSE.MIT.txt.
 
-Please refer to the respective license files for details.
+Where applicable, third-party notices and attributions are recorded in THIRD-PARTY-NOTICES.TXT.

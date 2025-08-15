@@ -50,7 +50,10 @@ Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 Source: "..\imageocclusioneditor.ico"; DestDir: "{app}"; Flags: ignoreversion
 ; Documentation
 Source: "..\README.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\LICENSE.GPL3.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\LICENSE.MIT.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\THIRD-PARTY-NOTICES.TXT"; DestDir: "{app}"; Flags: ignoreversion
 ; Templates (optional)
 Source: "..\Resources\Template_IIOT.txt"; DestDir: "{app}\Templates"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "..\Resources\Template_IIOTT.txt"; DestDir: "{app}\Templates"; Flags: ignoreversion skipifsourcedoesntexist
