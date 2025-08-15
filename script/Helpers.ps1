@@ -133,3 +133,61 @@ function Get-ISCCPath {
   foreach ($c in $candidates) { if (Test-Path -LiteralPath $c) { return $c } }
   throw 'Inno Setup compiler (ISCC.exe) not found. Install Inno Setup 6 or pass -InnoSetupCompiler.'
 }
+
+function Invoke-CycloneDX {
+  <#
+  .SYNOPSIS
+    Run CycloneDX to generate SBOM for a given project and return bom.json path.
+  .PARAMETER ProjectPath
+    Path to the .csproj or solution to analyze.
+  .PARAMETER OutDir
+    Output directory where bom.json will be written.
+  .OUTPUTS
+    Full path to bom.json
+  #>
+  param(
+    [Parameter(Mandatory)][string]$ProjectPath,
+    [Parameter(Mandatory)][string]$OutDir
+  )
+  # Ensure output directory exists
+  if (-not (Test-Path -LiteralPath $OutDir)) {
+    [void](New-Item -ItemType Directory -Path $OutDir)
+  }
+
+  $cdxArguments = @(
+    $ProjectPath,
+    '-o', $OutDir,
+    '--exclude-dev',
+    '--exclude-test-projects',
+    '--output-format', 'Json'
+  )
+
+  $cmds = @(
+    @{ File = 'dotnet-CycloneDX'; Arguments = $cdxArguments },
+    @{ File = 'dotnet'; Arguments = @('CycloneDX') + $cdxArguments }
+  )
+
+  $succeeded = $false
+  foreach ($c in $cmds) {
+    try {
+      Write-Information "[CycloneDX] Running: $($c.File) $($c.Arguments -join ' ')" -InformationAction Continue
+      & $c.File @($c.Arguments) | Out-Null
+      $exit = $LASTEXITCODE
+      if ($exit -eq 0) { $succeeded = $true; break }
+      Write-Warning "Command exited with code $exit. Trying fallback if available..."
+    }
+    catch {
+      Write-Warning "Failed to run $($c.File): $($_.Exception.Message)"
+    }
+  }
+
+  if (-not $succeeded) {
+    throw "Failed to run CycloneDX CLI. Ensure 'dotnet tool install --global CycloneDX' has been executed."
+  }
+
+  $bomPath = Join-Path $OutDir 'bom.json'
+  if (-not (Test-Path -LiteralPath $bomPath)) {
+    throw "SBOM not found: $bomPath"
+  }
+  return (Resolve-Path -LiteralPath $bomPath).Path
+}

@@ -30,6 +30,11 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $InformationPreference = 'Continue'
+$PSNativeCommandUseErrorActionPreference = $true
+$PSStyle.OutputRendering = 'Ansi'
+
+# Dot-source shared helpers
+. "$PSScriptRoot/Helpers.ps1"
 
 # Known repository URL overrides for packages missing metadata
 $RepoUrlOverrides = @{
@@ -53,45 +58,6 @@ function New-DirectoryIfMissing {
   }
 }
 
-function Invoke-CycloneDX([string]$ProjectPath, [string]$OutDir) {
-  New-DirectoryIfMissing -Path $OutDir
-  $cdxArguments = @(
-    $ProjectPath,
-    '-o', $OutDir,
-    '--exclude-dev',
-    '--exclude-test-projects',
-    '--output-format', 'Json'
-  )
-
-  $cmds = @(
-    @{ File = 'dotnet-CycloneDX'; Arguments = $cdxArguments },
-    @{ File = 'dotnet'; Arguments = @('CycloneDX') + $cdxArguments }
-  )
-
-  $succeeded = $false
-  foreach ($c in $cmds) {
-    try {
-      Write-Information "[CycloneDX] Running: $($c.File) $($c.Arguments -join ' ')"
-      & $c.File @($c.Arguments) | Out-Null
-      $exit = $LASTEXITCODE
-      if ($exit -eq 0) { $succeeded = $true; break }
-      Write-Warning "Command exited with code $exit. Trying fallback if available..."
-    }
-    catch {
-      Write-Warning "Failed to run $($c.File): $($_.Exception.Message)"
-    }
-  }
-
-  if (-not $succeeded) {
-    throw "Failed to run CycloneDX CLI. Ensure 'dotnet tool install --global CycloneDX' has been executed."
-  }
-
-  $bomPath = Join-Path $OutDir 'bom.json'
-  if (-not (Test-Path -LiteralPath $bomPath)) {
-    throw "SBOM not found: $bomPath"
-  }
-  return (Resolve-Path -LiteralPath $bomPath).Path
-}
 
 # --- Web/metadata helpers ---
 function Invoke-WebRequestSafe {
