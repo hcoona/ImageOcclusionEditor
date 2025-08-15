@@ -113,13 +113,26 @@ if ($exit -ne 0) {
 }
 Write-Information ("Publish done in {0}s" -f [Math]::Round($stopwatch.Elapsed.TotalSeconds,2))
 
+# Generate SBOM via CycloneDX (shared helper)
+try {
+    $manifestPath = Join-Path $publishDir "_manifest"
+    Write-Information "Generating SBOM with CycloneDX..."
+    $bomPath = Invoke-CycloneDX -ProjectPath $csprojPath -OutDir $manifestPath
+    Write-Information "SBOM generated at: $bomPath"
+}
+catch {
+    Write-Error "CycloneDX failed: $($_.Exception.Message)"
+    throw
+}
+
 # 5) Show key outputs (AOT vs non-AOT layouts may differ)
 $exe = Join-Path $publishDir ($assemblyName + '.exe')
 $runtimeConfig = Join-Path $publishDir ($assemblyName + '.runtimeconfig.json')
 $deps = Join-Path $publishDir ($assemblyName + '.deps.json')
+$sbom = Join-Path -Path $publishDir -ChildPath "_manifest" "bom.json"
 
 Write-Information "Output file check:"
-foreach ($f in @($exe, $runtimeConfig, $deps)) {
+foreach ($f in @($exe, $runtimeConfig, $deps, $sbom)) {
     $exists = Test-Path -LiteralPath $f
     $mark = if ($exists) { '[x]' } else { '[ ]' }
     Write-Information ("  {0} {1}" -f $mark, $f)
