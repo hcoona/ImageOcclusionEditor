@@ -35,85 +35,22 @@ $InformationPreference = 'Continue'
 $PSNativeCommandUseErrorActionPreference = $true
 $PSStyle.OutputRendering = 'Ansi'
 
-function Resolve-RepoRoot {
-    # script/ is a subfolder of repo root
-    $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Path $MyInvocation.MyCommand.Path -Parent }
-    return (Resolve-Path -LiteralPath (Join-Path $scriptDir '..')).Path
-}
-
-function Get-ProjectFramework {
-    param([string]$CsprojPath)
-    if (-not (Test-Path -LiteralPath $CsprojPath)) {
-        throw "Project file not found: $CsprojPath"
-    }
-    try {
-    [xml]$xml = Get-Content -LiteralPath $CsprojPath -Raw -ErrorAction Stop
-    $node = $xml.SelectSingleNode('/Project/PropertyGroup/TargetFramework')
-    $tfm = if ($null -ne $node) { $node.InnerText } else { $null }
-    if ([string]::IsNullOrWhiteSpace($tfm)) {
-            throw 'Could not find <TargetFramework> in csproj.'
-        }
-        return $tfm
-    }
-    catch {
-        throw "Failed to read TargetFramework: $($_.Exception.Message)"
-    }
-}
-
-function Get-ProjectRuntimeIdentifier {
-    param([string]$CsprojPath)
-    if (-not (Test-Path -LiteralPath $CsprojPath)) {
-        throw "Project file not found: $CsprojPath"
-    }
-    try {
-        [xml]$xml = Get-Content -LiteralPath $CsprojPath -Raw -ErrorAction Stop
-        $node = $xml.SelectSingleNode('/Project/PropertyGroup/RuntimeIdentifier')
-        $rid = if ($null -ne $node) { $node.InnerText } else { $null }
-        if ([string]::IsNullOrWhiteSpace($rid)) {
-            $node = $xml.SelectSingleNode('/Project/PropertyGroup/RuntimeIdentifiers')
-            if ($null -ne $node) {
-                $list = @($node.InnerText -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
-                if ($list.Length -gt 0) { $rid = $list[0] }
-            }
-        }
-        return $rid
-    }
-    catch {
-        throw "Failed to read RuntimeIdentifier(s): $($_.Exception.Message)"
-    }
-}
-
-function New-OutputPath {
-    [CmdletBinding(SupportsShouldProcess=$true)]
-    param(
-        [string]$Root,
-        [string]$AssemblyName,
-        [string]$Config,
-        [string]$Tfm,
-        [string]$Rid
-    )
-    $path = Join-Path $Root $AssemblyName
-    $path = Join-Path $path $Config
-    $path = Join-Path $path $Tfm
-    $path = Join-Path $path $Rid
-    if ($PSCmdlet.ShouldProcess($path, 'Create output directory')) {
-        New-Item -ItemType Directory -Path $path -Force | Out-Null
-    }
-    return $path
-}
+# Dot-source shared helpers
+. (Join-Path $PSScriptRoot 'Helpers.ps1')
 
 # 1) Resolve paths and inputs
-$repoRoot = Resolve-RepoRoot
+$repoRoot = Get-RepoRoot
 $projectDir = Join-Path $repoRoot 'ImageOcclusionEditorWinUI3'
 $csprojPath = Join-Path $projectDir 'ImageOcclusionEditorWinUI3.csproj'
-$assemblyName = 'ImageOcclusionEditor'  # Must match <AssemblyName> in csproj
-${Framework} = Get-ProjectFramework -CsprojPath $csprojPath
-${Runtime} = Get-ProjectRuntimeIdentifier -CsprojPath $csprojPath
+$proj = Get-ProjectInfo -CsprojPath $csprojPath -DefaultAssemblyName 'ImageOcclusionEditor'
+$assemblyName = $proj.AssemblyName
+${Framework} = $proj.TargetFramework
+${Runtime} = $proj.RuntimeIdentifier
 
 if (-not $OutputRoot) {
     $OutputRoot = Join-Path $repoRoot 'out'
 }
-$publishDir = New-OutputPath -Root $OutputRoot -AssemblyName $assemblyName -Config $Configuration -Tfm $Framework -Rid $Runtime
+$publishDir = Get-PublishOutputPath -PublishOutputRoot $OutputRoot -Configuration $Configuration -TargetFramework $Framework -RuntimeIdentifier $Runtime
 
 Write-Information "Publish info:"
 Write-Information "  Project:       $csprojPath"
