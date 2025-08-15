@@ -11,12 +11,8 @@
     <Folder Name="/Resources/">
         <File Path="imageocclusioneditor.ico" />
     </Folder>
-    <Project Path="ImageOcclusionEditor/ImageOcclusionEditor.csproj" />
     <Project Path="ImageOcclusionEditorWinUI3/ImageOcclusionEditorWinUI3.csproj">
         <Platform Project="x64" />
-    </Project>
-    <Project Path="Setup/Setup.vdproj" Type="Installer">
-        <Build />
     </Project>
     <Project Path="SetupWinUI3/SetupWinUI3.csproj">
         <Platform Project="x64" />

@@ -33,15 +33,15 @@
       },
       "Microsoft.DotNet.ILCompiler": {
         "type": "Direct",
-        "requested": "[9.0.7, )",
-        "resolved": "9.0.7",
-        "contentHash": "FpvJ2rCpj2CB/4hZt0cmB3hCPMNZV2vrisQis3hR9itTEjLzeggi0AShrgJIZ5+3Y7433K7ESSsJ6+8T+nE2nQ=="
+        "requested": "[9.0.8, )",
+        "resolved": "9.0.8",
+        "contentHash": "cMwVh5hsxAhv+oMHQdgcXodt2kDpfviofBO4IXupSAHJW2vZOZOOIhvPWRGO6NeGcP8SR4OpSwktRqb0i79KFA=="
       },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
-        "requested": "[9.0.7, )",
-        "resolved": "9.0.7",
-        "contentHash": "SZ1brSGoLnhLbE8QUZrtN6YwzN2gDT1wbx9qDBEfFFJcstiDTjJ6ygNuTPBV/K7SjGfx2YNbcJi5+ygbPOZpDg=="
+        "requested": "[9.0.8, )",
+        "resolved": "9.0.8",
+        "contentHash": "rd1CbIsMtVPtZNTIVD6Xydue//klYOOQIDpRgu3BHtv17AlpRs74/6QFbcYgMm/jL+naVU2T3OFLxVSLV5lQLQ=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
@@ -273,11 +273,11 @@
     "net9.0-windows10.0.22000/win-x64": {
       "Microsoft.DotNet.ILCompiler": {
         "type": "Direct",
-        "requested": "[9.0.7, )",
-        "resolved": "9.0.7",
-        "contentHash": "FpvJ2rCpj2CB/4hZt0cmB3hCPMNZV2vrisQis3hR9itTEjLzeggi0AShrgJIZ5+3Y7433K7ESSsJ6+8T+nE2nQ==",
+        "requested": "[9.0.8, )",
+        "resolved": "9.0.8",
+        "contentHash": "cMwVh5hsxAhv+oMHQdgcXodt2kDpfviofBO4IXupSAHJW2vZOZOOIhvPWRGO6NeGcP8SR4OpSwktRqb0i79KFA==",
         "dependencies": {
-          "runtime.win-x64.Microsoft.DotNet.ILCompiler": "9.0.7"
+          "runtime.win-x64.Microsoft.DotNet.ILCompiler": "9.0.8"
         }
       },
       "Microsoft.Web.WebView2": {
@@ -336,8 +336,8 @@
       },
       "runtime.win-x64.Microsoft.DotNet.ILCompiler": {
         "type": "Transitive",
-        "resolved": "9.0.7",
-        "contentHash": "nftDR4604AcQawEWSfb7pcZWoNfaB+vnKQL3P2LUfzRoA8S6K+YObgotgJVNopMBMXLxQN0VSKGEdRa+WFlN/g=="
+        "resolved": "9.0.8",
+        "contentHash": "VnA7D8XxNK1cNc2wlHCkdgDiTzCktzIixNYw0kyG7cy7fxXA07vkdLFXP72Cct4/7c7i8PL6JK3eTDqK/x6quQ=="
       },
       "SkiaSharp.NativeAssets.Win32": {
         "type": "Transitive",
