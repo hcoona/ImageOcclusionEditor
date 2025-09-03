@@ -56,7 +56,7 @@ namespace ImageOcclusionEditorWinUI3
             BackgroundFilePath = backgroundFilePath;
             OcclusionFilePath = occlusionFilePath;
 
-            OriginalSvg = ReadSvgFromChunk();
+            OriginalSvg = ReadSvgFromChunk(occlusionFilePath);
 
             GetImageSize(BackgroundFilePath, out int width, out int height);
 
@@ -412,11 +412,11 @@ namespace ImageOcclusionEditorWinUI3
             pngw.End();
         }
 
-        private string ReadSvgFromChunk()
+        private static string ReadSvgFromChunk(string occlusionFilePath)
         {
             try
             {
-                var pngr = FileHelper.CreatePngReader(OcclusionFilePath);
+                var pngr = FileHelper.CreatePngReader(occlusionFilePath);
                 PngChunkSVGI? chunk = (PngChunkSVGI?)pngr.GetChunksList().GetById1(PngChunkSVGI.ID);
                 pngr.End();
                 return chunk?.GetSVG() ?? string.Empty;

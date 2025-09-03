@@ -22,7 +22,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using FileSignatures;
 using FileSignatures.Formats;
 using Hjg.Pngcs.Chunks;
@@ -50,7 +49,7 @@ namespace ImageOcclusionEditorWinUI3
         /// Invoked when the application is launched.
         /// </summary>
         /// <param name="args">Details about the launch request and process.</param>
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+        protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
             // Get command line arguments
             string[] commandLineArgs = Environment.GetCommandLineArgs();

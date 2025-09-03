@@ -42,7 +42,6 @@
     <ItemGroup>
         <PackageReference Include="FileSignatures" />
         <PackageReference Include="IO.Github.Hcoona.Pngcs" />
-        <PackageReference Include="Microsoft.Web.WebView2" />
         <PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
         <PackageReference Include="Microsoft.WindowsAppSDK" />
         <PackageReference Include="Svg.Skia" />
