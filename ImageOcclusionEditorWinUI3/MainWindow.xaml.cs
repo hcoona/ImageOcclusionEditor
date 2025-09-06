@@ -41,27 +41,17 @@ namespace ImageOcclusionEditorWinUI3
     {
         private const string SvgEditorPath = "svg-edit/index.html";
 
-        public string OriginalSvg { get; }
-        public string OcclusionFilePath { get; }
-        public int OcclusionWidth { get; }
-        public int OcclusionHeight { get; }
+        private readonly string _occlusionFilePath;
+        private readonly string _backgroundFilePath;
 
-        private string BackgroundFilePath { get; set; }
         private bool isWebViewReady = false;
 
         public MainWindow(string backgroundFilePath, string occlusionFilePath)
         {
             InitializeComponent();
 
-            BackgroundFilePath = backgroundFilePath;
-            OcclusionFilePath = occlusionFilePath;
-
-            OriginalSvg = ReadSvgFromChunk(occlusionFilePath);
-
-            GetImageSize(BackgroundFilePath, out int width, out int height);
-
-            OcclusionWidth = width;
-            OcclusionHeight = height;
+            _backgroundFilePath = backgroundFilePath;
+            _occlusionFilePath = occlusionFilePath;
         }
 
         private async void Grid_Loaded(object sender, RoutedEventArgs e)
@@ -93,8 +83,8 @@ namespace ImageOcclusionEditorWinUI3
                 webView.CoreWebView2.Settings.AreDevToolsEnabled = false;
                 webView.CoreWebView2.Settings.IsGeneralAutofillEnabled = false;
 
-                GetImageSize(BackgroundFilePath, out int width, out int height);
-                var targetUri = $"{GetSvgEditorUri()}?{GenerateUrlParams(BackgroundFilePath, width, height)}";
+                GetImageSize(_backgroundFilePath, out int width, out int height);
+                var targetUri = $"{GetSvgEditorUri()}?{GenerateUrlParams(_backgroundFilePath, width, height)}";
 
                 webView.CoreWebView2.Navigate(targetUri);
             }
@@ -110,11 +100,12 @@ namespace ImageOcclusionEditorWinUI3
             {
                 isWebViewReady = true;
 
-                await SetBackgroundInBrowser(BackgroundFilePath);
+                await SetBackgroundInBrowser(_backgroundFilePath);
 
-                if (!string.IsNullOrWhiteSpace(OriginalSvg))
+                var svg = ReadSvgFromChunk(_occlusionFilePath);
+                if (!string.IsNullOrWhiteSpace(svg))
                 {
-                    await SetSvgInBrowserAsync(OriginalSvg);
+                    await SetSvgInBrowserAsync(svg);
                 }
 
                 // Inject keyboard shortcut handler
@@ -452,10 +443,12 @@ namespace ImageOcclusionEditorWinUI3
 
             WriteSvgToChunk(tmpOcclusionFilePath, svg);
 
-            if (File.Exists(OcclusionFilePath))
-                File.Delete(OcclusionFilePath);
+            if (File.Exists(_occlusionFilePath))
+            {
+                File.Delete(_occlusionFilePath);
+            }
 
-            File.Move(tmpOcclusionFilePath, OcclusionFilePath);
+            File.Move(tmpOcclusionFilePath, _occlusionFilePath);
         }
 
         private async Task SaveOcclusionAndExitAsync()
