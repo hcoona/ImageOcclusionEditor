@@ -21,16 +21,10 @@
 
 using System;
 using System.IO;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Hjg.Pngcs;
-using Hjg.Pngcs.Chunks;
+using ImageOcclusionEditorWinUI3.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.Web.WebView2.Core;
-using SkiaSharp;
-using Svg.Skia;
 
 namespace ImageOcclusionEditorWinUI3
 {
@@ -39,12 +33,10 @@ namespace ImageOcclusionEditorWinUI3
     /// </summary>
     public sealed partial class MainWindow : Window
     {
-        private const string SvgEditorPath = "svg-edit/index.html";
-
         private readonly string _occlusionFilePath;
         private readonly string _backgroundFilePath;
-
-        private bool isWebViewReady = false;
+        private readonly SvgEditorBridge _svgEditorBridge;
+        private readonly OcclusionFileService _occlusionFileService;
 
         public MainWindow(string backgroundFilePath, string occlusionFilePath)
         {
@@ -52,6 +44,16 @@ namespace ImageOcclusionEditorWinUI3
 
             _backgroundFilePath = backgroundFilePath;
             _occlusionFilePath = occlusionFilePath;
+
+            _occlusionFileService = new OcclusionFileService();
+            _svgEditorBridge = new SvgEditorBridge(webView);
+
+            _svgEditorBridge.Ready += OnSvgEditorReady;
+            _svgEditorBridge.SaveRequested += OnSaveRequested;
+            _svgEditorBridge.SaveAndExitRequested += OnSaveAndExitRequested;
+            _svgEditorBridge.CancelRequested += OnCancelRequested;
+
+            Closed += OnWindowClosed;
         }
 
         private async void Grid_Loaded(object sender, RoutedEventArgs e)
@@ -63,419 +65,120 @@ namespace ImageOcclusionEditorWinUI3
                     "ImageOcclusionEditor",
                     "WebView2UserData");
 
-                CoreWebView2Environment env = await CoreWebView2Environment.CreateWithOptionsAsync(
-                    browserExecutableFolder: null,
-                    userDataFolder: userDataFolder,
-                    new CoreWebView2EnvironmentOptions
-                    {
-                        AdditionalBrowserArguments =
-                            "--disable-features=msSmartScreenProtection " +
-                            "--allow-file-access-from-files",
-                    });
+                var (width, height) = _occlusionFileService.GetImageDimensions(_backgroundFilePath);
+                Uri targetUri = SvgEditorNavigationBuilder.Build(_backgroundFilePath, width, height);
 
-                webView.NavigationCompleted += WebView_NavigationCompleted;
-                webView.WebMessageReceived += WebView_WebMessageReceived;
-
-                await webView.EnsureCoreWebView2Async(env);
-
-                webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
-                webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
-                webView.CoreWebView2.Settings.AreDevToolsEnabled = false;
-                webView.CoreWebView2.Settings.IsGeneralAutofillEnabled = false;
-
-                GetImageSize(_backgroundFilePath, out int width, out int height);
-                var targetUri = $"{GetSvgEditorUri()}?{GenerateUrlParams(_backgroundFilePath, width, height)}";
-
-                webView.CoreWebView2.Navigate(targetUri);
+                await _svgEditorBridge.InitializeAsync(userDataFolder, targetUri);
             }
             catch (Exception ex)
             {
-                ShowError($"Error initializing WebView2: {ex.Message}");
+                await ShowErrorAsync($"Error initializing WebView2: {ex.Message}");
             }
         }
 
-        private async void WebView_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        private async void OnSvgEditorReady(object? sender, EventArgs e)
         {
-            if (e.IsSuccess)
+            try
             {
-                isWebViewReady = true;
+                Uri backgroundUri = new Uri(Path.GetFullPath(_backgroundFilePath));
+                await _svgEditorBridge.SetBackgroundAsync(backgroundUri);
 
-                await SetBackgroundInBrowser(_backgroundFilePath);
-
-                var svg = ReadSvgFromChunk(_occlusionFilePath);
+                string svg = _occlusionFileService.GetSvgOverlay(_occlusionFilePath);
                 if (!string.IsNullOrWhiteSpace(svg))
                 {
-                    await SetSvgInBrowserAsync(svg);
+                    await _svgEditorBridge.SetSvgContentAsync(svg);
                 }
 
-                // Inject keyboard shortcut handler
-                await InjectKeyboardShortcutHandler();
-            }
-        }
-
-        private async void WebView_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
-        {
-            try
-            {
-                string message = e.TryGetWebMessageAsString();
-                await HandleKeyboardShortcutFromWebView2(message);
+                await _svgEditorBridge.InjectKeyboardShortcutsAsync();
             }
             catch (Exception ex)
             {
-                ShowError($"Error handling web message: {ex.Message}");
+                await ShowErrorAsync($"Error preparing SVG editor: {ex.Message}");
             }
         }
 
-        private async Task InjectKeyboardShortcutHandler()
+        private void OnCancelRequested(object? sender, EventArgs e)
         {
-            if (!isWebViewReady) return;
-
-            string script = @"
-                (function() {
-                    // Remove any existing event listener to avoid duplicates
-                    if (window.imageOcclusionKeyHandler) {
-                        document.removeEventListener('keydown', window.imageOcclusionKeyHandler, true);
-                        document.removeEventListener('keyup', window.imageOcclusionKeyHandler, true);
-                    }
-
-                    // Track if our handler is active
-                    window.imageOcclusionHandlerActive = true;
-
-                    // Define the keyboard handler
-                    window.imageOcclusionKeyHandler = function(e) {
-                        // Only handle if our handler is active
-                        if (!window.imageOcclusionHandlerActive) return;
-
-                        // Check for our specific shortcuts
-                        if (e.key === 'Escape') {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            if (window.chrome && window.chrome.webview) {
-                                window.chrome.webview.postMessage('cancel');
-                            }
-                            return false;
-                        }
-                        else if (e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 's')) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            if (window.chrome && window.chrome.webview) {
-                                window.chrome.webview.postMessage('save');
-                            }
-                            return false;
-                        }
-                        else if (e.ctrlKey && !e.shiftKey && (e.key === 'S' || e.key === 's')) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            if (window.chrome && window.chrome.webview) {
-                                window.chrome.webview.postMessage('saveExit');
-                            }
-                            return false;
-                        }
-                    };
-
-                    // Add the event listeners with capture phase to catch events early
-                    document.addEventListener('keydown', window.imageOcclusionKeyHandler, true);
-                    // Also add to window to ensure we catch everything
-                    window.addEventListener('keydown', window.imageOcclusionKeyHandler, true);
-
-                    // Add a backup using keyup as well for better reliability
-                    window.addEventListener('keyup', function(e) {
-                        if (!window.imageOcclusionHandlerActive) return;
-
-                        // Handle on keyup as backup for some cases
-                        if (e.key === 'Escape' ||
-                            (e.ctrlKey && (e.key === 'S' || e.key === 's'))) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                        }
-                    }, true);
-
-                    console.log('Image Occlusion keyboard shortcuts injected successfully');
-
-                    // Re-inject periodically to ensure persistence
-                    setTimeout(function() {
-                        if (window.imageOcclusionHandlerActive &&
-                            window.chrome && window.chrome.webview) {
-                            console.log('Keyboard shortcut handler still active');
-                        }
-                    }, 5000);
-                })();
-            ";
-
-            try
-            {
-                await webView.CoreWebView2.ExecuteScriptAsync(script);
-            }
-            catch (Exception ex)
-            {
-                ShowError($"Error injecting keyboard handler: {ex.Message}");
-            }
+            Close();
         }
 
-        private async Task HandleKeyboardShortcutFromWebView2(string shortcut)
+        private async void OnSaveRequested(object? sender, EventArgs e)
         {
-            switch (shortcut?.ToLower())
-            {
-                case "cancel":
-                    this.Close();
-                    break;
-                case "save":
-                    try
-                    {
-                        await SaveOcclusionAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        ShowError($"save failed: {ex.Message}");
-                    }
-                    break;
-                case "saveexit":
-                    try
-                    {
-                        await SaveOcclusionAndExitAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        ShowError($"save and exit failed: {ex.Message}");
-                    }
-                    break;
-            }
+            await HandleSaveAsync(closeAfterSave: false, errorPrefix: "save failed");
         }
 
-        private void BtnCancel_Click(object sender, RoutedEventArgs e)
+        private async void OnSaveAndExitRequested(object? sender, EventArgs e)
         {
-            this.Close();
+            await HandleSaveAsync(closeAfterSave: true, errorPrefix: "save and exit failed");
         }
 
-        private async void BtnSave_Click(object sender, RoutedEventArgs e)
+        private async Task HandleSaveAsync(bool closeAfterSave, string errorPrefix)
         {
             try
             {
                 await SaveOcclusionAsync();
-            }
-            catch (Exception ex)
-            {
-                ShowError($"save failed: {ex.Message}");
-            }
-        }
 
-        private async void BtnSaveExit_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                await SaveOcclusionAndExitAsync();
-            }
-            catch (Exception ex)
-            {
-                ShowError($"save and exit failed: {ex.Message}");
-            }
-        }
-
-        private Uri GetSvgEditorUri()
-        {
-            string appFolder = AppContext.BaseDirectory;
-            return new Uri($"file:///{Path.Combine(appFolder, SvgEditorPath)}");
-        }
-
-        private string GenerateUrlParams(string backgroundFilePath, int width, int height)
-        {
-            var urlParams = new StringBuilder();
-
-            AppendUrlParam(urlParams, "bkgd_url", backgroundFilePath);
-            AppendUrlParam(urlParams, "dimensions", $"{width},{height}");
-            AppendUrlParam(urlParams, "initFill[color]", Settings.FillColor);
-            AppendUrlParam(urlParams, "initFill[opacity]", "1");
-            AppendUrlParam(urlParams, "initStroke[color]", Settings.StrokeColor);
-            AppendUrlParam(urlParams, "initStroke[width]", Settings.StrokeWidth);
-            AppendUrlParam(urlParams, "initStroke[opacity]", "1");
-            AppendUrlParam(urlParams, "storagePrompt", "false");
-
-            return urlParams.ToString().TrimStart('&');
-        }
-
-        private void AppendUrlParam(StringBuilder sb, string key, string value)
-        {
-            if (sb.Length > 0)
-                sb.Append('&');
-            sb.Append(Uri.EscapeDataString(key));
-            sb.Append('=');
-            sb.Append(Uri.EscapeDataString(value));
-        }
-
-        private void GetImageSize(string filePath, out int width, out int height)
-        {
-            using var codec = SKCodec.Create(filePath);
-            width = codec.Info.Width;
-            height = codec.Info.Height;
-        }
-
-        private async Task SetBackgroundInBrowser(string backgroundFilePath)
-        {
-            if (!isWebViewReady) return;
-
-            string script = $"svgEditor.setBackground(\"\", \"{new Uri(backgroundFilePath).AbsoluteUri}\")";
-            try
-            {
-                await webView.CoreWebView2.ExecuteScriptAsync(script);
-            }
-            catch (Exception ex)
-            {
-                ShowError($"Error setting background in browser: {ex.Message}");
-            }
-        }
-
-        private async Task SetSvgInBrowserAsync(string svg)
-        {
-            if (!isWebViewReady) return;
-
-            svg = svg.Replace("\r", "").Replace("\n", "").Replace("'", "\\'");
-            string script = $"svgEditor.loadSvgString('{svg}')";
-
-            try
-            {
-                string result = await webView.CoreWebView2.ExecuteScriptAsync(script);
-                if (result == "false")
+                if (closeAfterSave)
                 {
-                    ShowError($"Failed to set SVG in browser!");
+                    Close();
                 }
             }
             catch (Exception ex)
             {
-                ShowError($"Error setting SVG in browser: {ex.Message}");
-            }
-        }
-
-        private async Task<string> GetSvgFromBrowserAsync()
-        {
-            if (!isWebViewReady) return string.Empty;
-
-            try
-            {
-                string result = await webView.CoreWebView2.ExecuteScriptAsync("svgEditor.svgCanvas.svgCanvasToString()");
-                return JsonSerializer.Deserialize(result, JsonContext.Default.String) ?? string.Empty;
-            }
-            catch (Exception ex)
-            {
-                ShowError($"Error getting SVG from browser: {ex.Message}");
-                return string.Empty;
-            }
-        }
-
-        private void CreateChunk(PngWriter pngw, string svg)
-        {
-            PngChunkSVGI chunk = new PngChunkSVGI(pngw.ImgInfo);
-            chunk.SetSVG(svg);
-            chunk.Priority = true;
-
-            pngw.GetChunksList().Queue(chunk);
-        }
-
-        private void WriteSvgToChunk(string tmpOcclusionFilePath, string svg)
-        {
-            using MemoryStream memoryStream = new MemoryStream();
-
-            using (var fileStream = File.OpenRead(tmpOcclusionFilePath))
-            {
-                fileStream.CopyTo(memoryStream);
-            }
-
-            memoryStream.Seek(0, SeekOrigin.Begin);
-
-            PngReader pngr = new PngReader(memoryStream);
-            PngWriter pngw = FileHelper.CreatePngWriter(tmpOcclusionFilePath, pngr.ImgInfo, true);
-
-            pngw.CopyChunksFirst(pngr, ChunkCopyBehaviour.COPY_ALL_SAFE);
-
-            CreateChunk(pngw, svg);
-
-            for (int row = 0; row < pngr.ImgInfo.Rows; row++)
-            {
-                ImageLine l1 = pngr.ReadRow(row);
-                pngw.WriteRow(l1, row);
-            }
-
-            pngw.CopyChunksLast(pngr, ChunkCopyBehaviour.COPY_ALL);
-
-            pngr.End();
-            pngw.End();
-        }
-
-        private static string ReadSvgFromChunk(string occlusionFilePath)
-        {
-            try
-            {
-                var pngr = FileHelper.CreatePngReader(occlusionFilePath);
-                PngChunkSVGI? chunk = (PngChunkSVGI?)pngr.GetChunksList().GetById1(PngChunkSVGI.ID);
-                pngr.End();
-                return chunk?.GetSVG() ?? string.Empty;
-            }
-            catch
-            {
-                NativeHelper.MessageBox(
-                    IntPtr.Zero,
-                    "Failed to read SVG data from PNG chunk. Please ensure the occlusion file is valid.",
-                    "Error - Image Occlusion Editor",
-                    NativeHelper.MB_OK | NativeHelper.MB_ICONERROR);
-                return string.Empty;
+                await ShowErrorAsync($"{errorPrefix}: {ex.Message}");
             }
         }
 
         private async Task SaveOcclusionAsync()
         {
-            string tmpOcclusionFilePath = Path.GetTempFileName();
-            string svg = await GetSvgFromBrowserAsync();
+            string svg = await _svgEditorBridge.GetSvgContentAsync();
 
             if (string.IsNullOrEmpty(svg))
             {
-                ShowError("Failed to get SVG data from browser.");
-                return;
+                throw new InvalidOperationException("Failed to get SVG data from browser.");
             }
 
-            using var sksvg = SKSvg.CreateFromSvg(svg);
-            sksvg.Save(
-                path: tmpOcclusionFilePath,
-                background: SKColors.Transparent,
-                format: SKEncodedImageFormat.Png
-            );
-
-            WriteSvgToChunk(tmpOcclusionFilePath, svg);
-
-            if (File.Exists(_occlusionFilePath))
-            {
-                File.Delete(_occlusionFilePath);
-            }
-
-            File.Move(tmpOcclusionFilePath, _occlusionFilePath);
+            await _occlusionFileService.SaveOcclusionAsync(_occlusionFilePath, svg);
         }
 
-        private async Task SaveOcclusionAndExitAsync()
+        private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
-            await SaveOcclusionAsync();
-            this.Close();
+            Close();
         }
 
-        private async void ShowError(string message)
+        private async void BtnSave_Click(object sender, RoutedEventArgs e)
         {
-            // In WinUI3, we can use ContentDialog for better user experience
+            await HandleSaveAsync(closeAfterSave: false, errorPrefix: "save failed");
+        }
+
+        private async void BtnSaveExit_Click(object sender, RoutedEventArgs e)
+        {
+            await HandleSaveAsync(closeAfterSave: true, errorPrefix: "save and exit failed");
+        }
+
+        private async Task ShowErrorAsync(string message)
+        {
             try
             {
-                var dialog = new ContentDialog()
+                var dialog = new ContentDialog
                 {
                     Title = "Error",
                     Content = message,
                     CloseButtonText = "OK",
-                    XamlRoot = this.Content.XamlRoot
+                    XamlRoot = Content.XamlRoot
                 };
+
                 await dialog.ShowAsync();
             }
             catch
             {
-                // Fallback to debug output if dialog fails
                 System.Diagnostics.Debug.WriteLine($"Error: {message}");
             }
+        }
+
+        private void OnWindowClosed(object sender, WindowEventArgs args)
+        {
+            _svgEditorBridge.Dispose();
         }
     }
 }
