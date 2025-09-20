@@ -66,6 +66,13 @@ namespace ImageOcclusionEditorWinUI3.Services
 
             int width = BinaryPrimitives.ReadInt32BigEndian(header.Slice(16, 4));
             int height = BinaryPrimitives.ReadInt32BigEndian(header.Slice(20, 4));
+
+            const int MAX_DIMENSION = 1_000_000; // Aligned with libpng
+            if (width <= 0 || height <= 0 || width > MAX_DIMENSION || height > MAX_DIMENSION)
+            {
+                throw new InvalidDataException($"PNG dimensions are invalid or unreasonable: width={width}, height={height}.");
+            }
+
             return (width, height);
         }
 
