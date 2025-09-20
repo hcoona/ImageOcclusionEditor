@@ -36,7 +36,6 @@ namespace ImageOcclusionEditorWinUI3
         private readonly string _occlusionFilePath;
         private readonly string _backgroundFilePath;
         private readonly SvgEditorBridge _svgEditorBridge;
-        private readonly OcclusionFileService _occlusionFileService;
 
         public MainWindow(string backgroundFilePath, string occlusionFilePath)
         {
@@ -45,7 +44,6 @@ namespace ImageOcclusionEditorWinUI3
             _backgroundFilePath = backgroundFilePath;
             _occlusionFilePath = occlusionFilePath;
 
-            _occlusionFileService = new OcclusionFileService();
             _svgEditorBridge = new SvgEditorBridge(webView);
 
             _svgEditorBridge.Ready += OnSvgEditorReady;
@@ -65,7 +63,7 @@ namespace ImageOcclusionEditorWinUI3
                     "ImageOcclusionEditor",
                     "WebView2UserData");
 
-                var (width, height) = _occlusionFileService.GetImageDimensions(_backgroundFilePath);
+                var (width, height) = OcclusionFileService.GetImageDimensions(_backgroundFilePath);
                 Uri targetUri = SvgEditorNavigationBuilder.Build(_backgroundFilePath, width, height);
 
                 await _svgEditorBridge.InitializeAsync(userDataFolder, targetUri);
@@ -80,10 +78,10 @@ namespace ImageOcclusionEditorWinUI3
         {
             try
             {
-                Uri backgroundUri = new Uri(Path.GetFullPath(_backgroundFilePath));
+                Uri backgroundUri = new(Path.GetFullPath(_backgroundFilePath));
                 await _svgEditorBridge.SetBackgroundAsync(backgroundUri);
 
-                string svg = _occlusionFileService.GetSvgOverlay(_occlusionFilePath);
+                string svg = OcclusionFileService.GetSvgOverlay(_occlusionFilePath);
                 if (!string.IsNullOrWhiteSpace(svg))
                 {
                     await _svgEditorBridge.SetSvgContentAsync(svg);
@@ -138,7 +136,7 @@ namespace ImageOcclusionEditorWinUI3
                 throw new InvalidOperationException("Failed to get SVG data from browser.");
             }
 
-            await _occlusionFileService.SaveOcclusionAsync(_occlusionFilePath, svg);
+            await OcclusionFileService.SaveOcclusionAsync(_occlusionFilePath, svg);
         }
 
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
